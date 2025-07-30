@@ -2,6 +2,11 @@
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
+## Other Packages to Compute Vectorial Focal Fields
+
+- InFocus (MATLAB) [https://github.com/QF06/InFocus](https://github.com/QF06/InFocus)
+- Debye Diffraction Code (MATLAB and Python) [https://github.com/jdmanton/debye_diffraction_code](https://github.com/jdmanton/debye_diffraction_code)
+
 ## Resources
 
 - I. Herrera and P. A. Quinto-Su, "Simple computer program to calculate arbitrary tightly focused (propagating and evanescent) vector light fields," arXiv:2211.06725 (2022). [https://doi.org/10.48550/arXiv.2211.06725](https://doi.org/10.48550/arXiv.2211.06725).
@@ -16,6 +21,6 @@ This blog post explains how to set up the various coordinate systems and numeric
 
 This manuscript was the first to describe the calculation of vectorial focal fields using the fast Fourier transform.
 
-- L. Novotny and B. Hecht, "Principles of Nano-Optics," Cambridge University Press (2006), pp. 56 - 66
+- L. Novotny and B. Hecht, "Principles of Nano-Optics," Cambridge University Press, pp. 56 - 66 (2006). [https://doi.org/10.1017/CBO9780511813535](https://doi.org/10.1017/CBO9780511813535)
 
 Chapter 3 contains the derivation of the field at the focus of an aplanatic lens.
