@@ -16,12 +16,51 @@ class Polarization(StrEnum):
     CIRCULAR_LEFT = "circular_left"
     CIRCULAR_RIGHT = "circular_right"
 
+    def arrays(self, mesh_size: int) -> tuple[NDArray[Complex], NDArray[Complex]]:
+        match self:
+            case Polarization.LINEAR_X:
+                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex)
+                polarization_y = np.zeros((mesh_size, mesh_size), dtype=Complex)
+            case Polarization.LINEAR_Y:
+                polarization_x = np.zeros((mesh_size, mesh_size), dtype=Complex)
+                polarization_y = np.ones((mesh_size, mesh_size), dtype=Complex)
+            case Polarization.CIRCULAR_LEFT:
+                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+                polarization_y = 1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+            case Polarization.CIRCULAR_RIGHT:
+                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+                polarization_y = -1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+            case _:
+                raise ValueError(f"Unsupported polarization: {polarization}")
+        
+        return polarization_x, polarization_y
 
-class HalfmoonOrientation(StrEnum):
+
+class HalfmoonPhase(StrEnum):
     HORIZONTAL = "horizontal"
     VERTICAL = "vertical"
     PLUS_45 = "plus_45"
     MINUS_45 = "minus_45"
+
+    def arrays(self, mesh_size: int, phase: float = np.pi) -> tuple[NDArray[Float], NDArray[Float]]:
+        normed_coords = np.linspace(-1, 1, mesh_size)
+        x, y = np.meshgrid(normed_coords, normed_coords)
+        
+        phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
+        match self:
+            case HalfmoonPhase.HORIZONTAL:
+                phase_x[x >= 0] = phase
+            case HalfmoonPhase.VERTICAL:
+                phase_x[y >= 0] = phase
+            case HalfmoonPhase.PLUS_45:
+                phase_x[(x + y) >= 0] = phase
+            case HalfmoonPhase.MINUS_45:
+                phase_x[(x - y) >= 0] = phase
+
+        phase_y = phase_x.copy()
+
+        return phase_x, phase_y
+
 
 
 @dataclass
@@ -77,34 +116,12 @@ class InputField:
 
         normed_coords = np.linspace(-1, 1, mesh_size)
         x, y = np.meshgrid(normed_coords, normed_coords)
-
-        amplitude_x = np.exp(-(x - beam_center[0])**2 / waist_x**2 - (y - beam_center[1])**2 / waist_y**2)
+        x0: float = beam_center[0]
+        y0: float = beam_center[1]
+        amplitude_x = np.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
         amplitude_y = np.copy(amplitude_x)
 
         return amplitude_x, amplitude_y
-
-    @staticmethod
-    def _uniform_polarization(
-        mesh_size: int,
-        polarization: Polarization
-    ) -> tuple[NDArray[Complex], NDArray[Complex]]:
-        match polarization:
-            case Polarization.LINEAR_X:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex)
-                polarization_y = np.zeros((mesh_size, mesh_size), dtype=Complex)
-            case Polarization.LINEAR_Y:
-                polarization_x = np.zeros((mesh_size, mesh_size), dtype=Complex)
-                polarization_y = np.ones((mesh_size, mesh_size), dtype=Complex)
-            case Polarization.CIRCULAR_LEFT:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-                polarization_y = 1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-            case Polarization.CIRCULAR_RIGHT:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-                polarization_y = -1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-            case _:
-                raise ValueError(f"Unsupported polarization: {polarization}")
-        
-        return polarization_x, polarization_y
 
     @classmethod
     def gaussian_pupil(
@@ -112,7 +129,7 @@ class InputField:
         beam_center: tuple[float, float],
         waist: float | tuple[float, float],
         mesh_size: int,
-        polarization:Polarization
+        polarization: Polarization
     ) -> InputField:
         """Create a Gaussian pupil field with a specified waist size.
 
@@ -134,7 +151,7 @@ class InputField:
             The input field with Gaussian amplitude and specified polarization.
 
         """
-        polarization_x, polarization_y = cls._uniform_polarization(mesh_size, polarization)
+        polarization_x, polarization_y = polarization.arrays(mesh_size)
         amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center, waist, mesh_size)
 
         phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
@@ -156,27 +173,13 @@ class InputField:
         waist: float | tuple[float, float],
         mesh_size: int,
         polarization:Polarization,
-        orientation: HalfmoonOrientation = HalfmoonOrientation.HORIZONTAL,
+        orientation: HalfmoonPhase = HalfmoonPhase.HORIZONTAL,
         phase: float = np.pi,
     ) -> InputField:
-        polarization_x, polarization_y = cls._uniform_polarization(mesh_size, polarization)
+        polarization_x, polarization_y = polarization.arrays(mesh_size)
         amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center, waist, mesh_size)
 
-        normed_coords = np.linspace(-1, 1, mesh_size)
-        x, y = np.meshgrid(normed_coords, normed_coords)
-
-        phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
-        match orientation:
-            case HalfmoonOrientation.HORIZONTAL:
-                phase_x[x >= 0] = phase
-            case HalfmoonOrientation.VERTICAL:
-                phase_x[y >= 0] = phase
-            case HalfmoonOrientation.PLUS_45:
-                phase_x[(x + y) >= 0] = phase
-            case HalfmoonOrientation.MINUS_45:
-                phase_x[(x - y) >= 0] = phase
-
-        phase_y = phase_x.copy()
+        phase_x, phase_y = orientation.arrays(mesh_size, phase)
 
         return InputField(
             amplitude_x=amplitude_x,
@@ -189,7 +192,7 @@ class InputField:
 
     @classmethod
     def uniform_pupil(cls, mesh_size: int, polarization: Polarization) -> InputField:
-        polarization_x, polarization_y = cls._uniform_polarization(mesh_size, polarization)
+        polarization_x, polarization_y = polarization.arrays(mesh_size)
             
         amplitude_x = np.ones((mesh_size, mesh_size), dtype=Float)
         amplitude_y = np.ones((mesh_size, mesh_size), dtype=Float)

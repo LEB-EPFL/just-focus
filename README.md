@@ -16,6 +16,14 @@ uv sync --all-extras
 
 This will create a virtual environment with the required dependencies in a folder named `.venv`.
 
+### Tests
+
+Just run `pytest` from the project's root directory:
+
+```console
+pytest
+```
+
 ## Other Packages to Compute Vectorial Focal Fields
 
 - InFocus (MATLAB) [https://github.com/QF06/InFocus](https://github.com/QF06/InFocus)
