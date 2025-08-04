@@ -22,7 +22,7 @@ class Stop(StrEnum):
         A stop defined by a hyperbolic tangent function. This helps to improve accuracy
         in the focal field by gradually reducing the amplitude near the stop's edge.
 
-        See Leutenegger, et al. Opt. Express 14, 11277-91 (2006), eq. 16 for details.
+        See Leutenegger, et al., Opt. Express 14, 11277-91 (2006), eq. 16 for details.
     """
     UNIFORM = "uniform"
     TANH = "tanh"
@@ -125,14 +125,24 @@ class Pupil:
         far_field_y_padded = np.pad(far_field_y, padding, mode='constant', constant_values=0)
         far_field_z_padded = np.pad(far_field_z, padding, mode='constant', constant_values=0)
 
-        field_x = fftshift(ifft2(ifftshift(far_field_x_padded)))
-        field_y = fftshift(ifft2(ifftshift(far_field_y_padded)))
-        field_z = fftshift(ifft2(ifftshift(far_field_z_padded)))
+        # Compute the phase correction due to not sampling the origin
+        # See Herrera and Quinto-Su, arxiv:2211.06725 (2022), section
+        # Optical System: Mesh and note the typo in the first minus sign (it should be
+        # a plus sign).
+        auxillary_mesh_size = self.mesh_size * 2**padding_factor
+        auxillary_coords = np.linspace(-auxillary_mesh_size // 2, auxillary_mesh_size // 2, auxillary_mesh_size)
+        px, py = np.meshgrid(auxillary_coords, auxillary_coords)
+        correction_scaling = 1j * 2 * np.pi * 0.5 / px.shape[0]
+        phase_correction = np.exp(correction_scaling * px + correction_scaling * py)
+
+        field_x = fftshift(ifft2(ifftshift(far_field_x_padded))) * phase_correction
+        field_y = fftshift(ifft2(ifftshift(far_field_y_padded))) * phase_correction
+        field_z = fftshift(ifft2(ifftshift(far_field_z_padded))) * phase_correction
 
         dx = self.wavelength_um / 2 / self.na / 2**padding_factor
         dy = dx
         x_um = np.linspace(-dx * (field_x.shape[0] // 2), dx * (field_x.shape[0] // 2), field_x.shape[0])
-        y_um= np.linspace(-dy * (field_x.shape[1] // 2), dy * (field_y.shape[1] // 2), field_y.shape[1])
+        y_um = np.linspace(-dy * (field_x.shape[1] // 2), dy * (field_y.shape[1] // 2), field_y.shape[1])
 
         return FocalField(field_x=field_x, field_y=field_y, field_z=field_z, x_um=x_um, y_um=y_um)
     
