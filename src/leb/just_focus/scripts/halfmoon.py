@@ -3,16 +3,17 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
 
-from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil
+from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil, Stop
 
 
 def main(plot=True) -> None:
-    mesh_size = 32
+    mesh_size = 64
     pupil = Pupil(
         na=1.4,
         refractive_index=1.518,
         wavelength_um=0.561,
-        mesh_size=mesh_size
+        mesh_size=mesh_size,
+        stop=Stop.TANH,
     )
 
     inputs = InputField.gaussian_halfmoon_pupil(
@@ -24,7 +25,7 @@ def main(plot=True) -> None:
         phase=np.pi
     )
 
-    results = pupil.propgate(0.0, inputs, padding_factor=5)
+    results = pupil.propgate(0.0, inputs, padding_factor=4)
 
     _, axs = plt.subplots(2, 4, figsize=(12, 6))
     axs[0, 0].imshow(

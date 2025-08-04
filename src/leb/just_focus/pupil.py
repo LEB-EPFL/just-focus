@@ -12,12 +12,28 @@ from .focal_fields import FocalField
 
 
 class Stop(StrEnum):
+    """Defines the type of stop used in the pupil.
+
+    Attributes
+    ----------
+    UNIFORM : str
+        A uniform stop, where the pupil is filled completely.
+    TANH : str
+        A stop defined by a hyperbolic tangent function. This helps to improve accuracy
+        in the focal field by gradually reducing the amplitude near the stop's edge.
+
+        See Leutenegger, et al. Opt. Express 14, 11277-91 (2006), eq. 16 for details.
+    """
     UNIFORM = "uniform"
+    TANH = "tanh"
 
     def array(self, px: NDArray[Float], py: NDArray[Float]) -> NDArray[Float]:
         match self:
             case Stop.UNIFORM:
                 return ((px**2 + py**2) <= 1).astype(Float)
+            case Stop.TANH:
+                mesh_size = px.shape[0]
+                return 0.5 * (1 + np.tanh(1.5 * mesh_size * (1 - np.sqrt(px**2 + py**2))))
             case _:
                 raise ValueError(f"Unsupported stop type: {self}")
 
