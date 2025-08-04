@@ -2,6 +2,20 @@
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
+## Development
+
+### Set up the development environment
+
+Development requires [uv](https://docs.astral.sh/uv/).
+
+After cloning this repo, run the following command from the project's root directory:
+
+```console
+uv sync --all-extras
+```
+
+This will create a virtual environment with the required dependencies in a folder named `.venv`.
+
 ## Other Packages to Compute Vectorial Focal Fields
 
 - InFocus (MATLAB) [https://github.com/QF06/InFocus](https://github.com/QF06/InFocus)
