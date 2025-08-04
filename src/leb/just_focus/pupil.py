@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 import numpy as np
 from numpy.fft import fftshift, ifft2, ifftshift
@@ -10,6 +11,17 @@ from .inputs import InputField
 from .focal_fields import FocalField
 
 
+class Stop(StrEnum):
+    UNIFORM = "uniform"
+
+    def array(self, px: NDArray[Float], py: NDArray[Float]) -> NDArray[Float]:
+        match self:
+            case Stop.UNIFORM:
+                return ((px**2 + py**2) <= 1).astype(Float)
+            case _:
+                raise ValueError(f"Unsupported stop type: {self}")
+
+
 @dataclass
 class Pupil:
     na: float = 1.4
@@ -17,10 +29,11 @@ class Pupil:
     refractive_index: float = 1.518
     focal_length_mm: float = 3.3333
     mesh_size: int = 64
+    stop: Stop = Stop.UNIFORM
 
     x_mm: NDArray[Float] = field(init=False, repr=False)
     y_mm: NDArray[Float] = field(init=False, repr=False)
-    stop: NDArray[Float] = field(init=False, repr=False)
+    stop_arr: NDArray[Float] = field(init=False, repr=False)
     stop_radius_mm: float = field(init=False, repr=False)
     kx: NDArray[Float] = field(init=False, repr=False)
     ky: NDArray[Float] = field(init=False, repr=False)
@@ -31,7 +44,7 @@ class Pupil:
         normed_coords = np.linspace(-1, 1, self.mesh_size)
         
         px, py = np.meshgrid(normed_coords, normed_coords)
-        self.stop = ((px**2 + py**2) <= 1).astype(Float)
+        self.stop_arr = self.stop.array(px, py)
 
         # Far field coordinate system
         f = self.focal_length_mm / 1e3 # Convert focal length from mm to meters
@@ -46,7 +59,7 @@ class Pupil:
 
         # Angular spectrum coordinate system
         k0 = 2 * np.pi * 1e6 / self.wavelength_um # Convert wavelength from um to meters
-        self.k = k0 * self.refractive_index
+        self.k: float = k0 * self.refractive_index
         self.kx, self.ky = k0 * xinf / f, k0 * yinf / f
 
         # Set values of kz outside the pupil to 1 to avoid division by zero later
@@ -78,15 +91,15 @@ class Pupil:
         kz_root = np.sqrt(self.kz)
         k_transverse_sq = self.kx**2 + self.ky**2
 
-        far_field_x = defocus * self.stop * (
+        far_field_x = defocus * self.stop_arr * (
             inputs.polarization_x * inputs.amplitude_x * np.exp(1j * inputs.phase_x) * (self.ky**2 + self.kx**2 * self.kz / self.k) + \
             inputs.polarization_y * inputs.amplitude_y * np.exp(1j * inputs.phase_y) * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k)
         ) / k_transverse_sq / kz_root
-        far_field_y = defocus * self.stop * (
+        far_field_y = defocus * self.stop_arr * (
             inputs.polarization_x * inputs.amplitude_x * np.exp(1j * inputs.phase_x) * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k) + \
             inputs.polarization_y * inputs.amplitude_y * np.exp(1j * inputs.phase_y) * (self.kx**2 + self.ky**2 * self.kz / self.k)
         ) / k_transverse_sq / kz_root
-        far_field_z = defocus * self.stop * (
+        far_field_z = defocus * self.stop_arr * (
             inputs.polarization_x * inputs.amplitude_x * np.exp(1j * inputs.phase_x) * (-k_transverse_sq * self.kx / self.k) + \
             inputs.polarization_y * inputs.amplitude_y * np.exp(1j * inputs.phase_y) * (-k_transverse_sq * self.ky / self.k)
         ) / k_transverse_sq / kz_root

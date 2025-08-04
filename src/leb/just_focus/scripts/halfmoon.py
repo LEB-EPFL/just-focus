@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import numpy as np
 
-from leb.just_focus import HalfmoonOrientation, InputField, Polarization, Pupil
+from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil
 
 
 def main(plot=True) -> None:
@@ -20,7 +20,7 @@ def main(plot=True) -> None:
         waist=2.0,
         mesh_size=mesh_size,
         polarization=Polarization.LINEAR_Y,
-        orientation=HalfmoonOrientation.MINUS_45,
+        orientation=HalfmoonPhase.MINUS_45,
         phase=np.pi
     )
 
@@ -91,7 +91,7 @@ def main(plot=True) -> None:
     axs[1, 1].set_title("Polarization, y")
     axs[1, 1].set_xlabel("x, mm")
 
-    axs[1, 2].imshow(pupil.stop, vmin=0, vmax=1)
+    axs[1, 2].imshow(pupil.stop_arr, vmin=0, vmax=1)
     axs[1, 2].set_title("Stop")
     axs[1, 2].set_xlabel("x, mm")
 
