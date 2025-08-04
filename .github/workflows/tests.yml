@@ -28,4 +28,3 @@ jobs:
 
       - name: Run the tests
         run: uv run pytest
-      

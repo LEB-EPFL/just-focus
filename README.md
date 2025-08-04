@@ -4,6 +4,34 @@
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
+## Quickstart
+
+Compute the field in the focal plane (z = 0.0) of a NA 1.4 oil immersion microscope objective assuming a linearly polarized, paraxial Gaussian beam with a waist size equal to the radius of the objective's back aperture. Use a hyperbolic tangent function to smooth the boundary of the stop and zero pad the mesh so that the final square mesh has 64 * 2^4 = 1024 samples in each direction.
+
+```python
+import numpy as np
+
+from leb.just_focus import InputField, Polarization, Pupil, Stop
+
+mesh_size = 64
+pupil = Pupil(
+    na=1.4,
+    refractive_index=1.518,
+    wavelength_um=0.561,
+    mesh_size=mesh_size,
+    stop=Stop.TANH,
+)
+
+inputs = InputField.gaussian_pupil(
+    beam_center=(0.0, 0.0),
+    waist=1.0,
+    mesh_size=mesh_size,
+    polarization=Polarization.LINEAR_Y,
+)
+
+results = pupil.propgate(0.0, inputs, padding_factor=4)
+```
+
 ## Development
 
 ### Set up the development environment
