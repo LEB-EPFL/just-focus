@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .dtypes import Complex, Float
 
@@ -34,17 +35,17 @@ class InputField:
     
     Attributes
     ----------
-    amplitude_x : np.ndarray
+    amplitude_x : NDArray[Float]
         The amplitude of the field for the x-direction.
-    amplitude_y : np.ndarray
+    amplitude_y : NDArray[Float]
         The amplitude of the field for the y-direction.
-    phase_x : np.ndarray
+    phase_x : NDArray[Float]
         The phase of the field for the x-direction.
-    phase_y : np.ndarray
+    phase_y : NDArray[Float]
         The phase of the field for the y-direction.
-    polarization_x : np.ndarray
+    polarization_x : NDArray[Complex]
         The polarization state of the field for the x-direction.
-    polarization_y : np.ndarray
+    polarization_y : NDArray[Complex]
         The polarization state of the field for the y-direction.
 
     Methods
@@ -55,19 +56,19 @@ class InputField:
         Create a uniform pupil field with specified polarization.
 
     """
-    amplitude_x: np.ndarray
-    amplitude_y: np.ndarray
-    phase_x: np.ndarray
-    phase_y: np.ndarray
-    polarization_x: np.ndarray
-    polarization_y: np.ndarray
+    amplitude_x: NDArray[Float]
+    amplitude_y: NDArray[Float]
+    phase_x: NDArray[Float]
+    phase_y: NDArray[Float]
+    polarization_x: NDArray[Complex]
+    polarization_y: NDArray[Complex]
 
     @staticmethod
     def _gaussian_amplitude(
         beam_center: tuple[float, float],
         waist: float | tuple[float, float],
         mesh_size: int
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[NDArray[Float], NDArray[Float]]:
         """Calculate a Gaussian amplitude for the pupil field."""
         if isinstance(waist, (int, float)):
             waist_x = waist_y = waist
@@ -83,7 +84,10 @@ class InputField:
         return amplitude_x, amplitude_y
 
     @staticmethod
-    def _uniform_polarization(mesh_size: int, polarization: Polarization) -> tuple[np.ndarray, np.ndarray]:
+    def _uniform_polarization(
+        mesh_size: int,
+        polarization: Polarization
+    ) -> tuple[NDArray[Complex], NDArray[Complex]]:
         match polarization:
             case Polarization.LINEAR_X:
                 polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex)

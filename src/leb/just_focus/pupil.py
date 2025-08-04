@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 from numpy.fft import fftshift, ifft2, ifftshift
+from numpy.typing import NDArray
 
 from .dtypes import Float
 from .inputs import InputField
@@ -17,13 +18,13 @@ class Pupil:
     focal_length_mm: float = 3.3333
     mesh_size: int = 64
 
-    x_mm: np.ndarray = field(init=False, repr=False)
-    y_mm: np.ndarray = field(init=False, repr=False)
-    stop: np.ndarray = field(init=False, repr=False)
+    x_mm: NDArray[Float] = field(init=False, repr=False)
+    y_mm: NDArray[Float] = field(init=False, repr=False)
+    stop: NDArray[Float] = field(init=False, repr=False)
     stop_radius_mm: float = field(init=False, repr=False)
-    kx: np.ndarray = field(init=False, repr=False)
-    ky: np.ndarray = field(init=False, repr=False)
-    kz: np.ndarray = field(init=False, repr=False)
+    kx: NDArray[Float] = field(init=False, repr=False)
+    ky: NDArray[Float] = field(init=False, repr=False)
+    kz: NDArray[Float] = field(init=False, repr=False)
     k: float = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
