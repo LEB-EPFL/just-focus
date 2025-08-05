@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/LEB-EPFL/just-focus/compare/v0.2.2...v0.3.0) (2025-08-05)
+
+
+### Features
+
+* Add plotting routines for the simulation inputs ([b65cb31](https://github.com/LEB-EPFL/just-focus/commit/b65cb31de953106652f00039ee425d6ec8b54b1a))
+
 ## [0.2.2](https://github.com/LEB-EPFL/just-focus/compare/v0.2.1...v0.2.2) (2025-08-05)
 
 
