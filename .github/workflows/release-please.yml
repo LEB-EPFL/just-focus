@@ -30,15 +30,14 @@ jobs:
       - name: Checkout release branch
         uses: actions/checkout@v4
         with:
+          # PAT is necessary to trigger new test workflows after the lock is updated
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           ref: ${{ fromJson(needs.release-pull-request.outputs.pr_json_string).headBranchName }}
 
       - name: Setup `uv`
         uses: astral-sh/setup-uv@v6
 
       - name: Update `uv.lock`
-        env:
-          # PAT is required to trigger new test workflows on the PR
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
         run: |
           uv lock
           git config user.name "github-actions[bot]"
