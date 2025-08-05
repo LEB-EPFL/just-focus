@@ -6,8 +6,11 @@ on:
       - main
   
 jobs:
-  release-please:
+  release-pull-request:
     runs-on: ubuntu-latest
+    outputs:
+      prs_created: ${{ steps.release-please.outputs.prs_created }}
+      headBranchName: ${{ steps.release-please.outputs.pr.headBranchName }}
     steps:
       - name: Create PR with release-please
         id: release-please
@@ -16,14 +19,18 @@ jobs:
           release-type: python
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
   
-      # release-please is unable to update uv.lock, so we do it ourselves
-      # https://github.com/googleapis/release-please/issues/2455#issuecomment-2569782706
-      # https://github.com/astral-sh/uv/issues/7533
-
+  # release-please is unable to update uv.lock, so we do it ourselves
+  # https://github.com/googleapis/release-please/issues/2455#issuecomment-2569782706
+  # https://github.com/astral-sh/uv/issues/7533
+  update-uv-lock:
+    runs-on: ubuntu-latest
+    needs: release-pull-request
+    if : needs.release-pull-request.outputs.prs_created == 'true'
+    steps:
       - name: Checkout release branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ fromJson(steps.release-please.outputs.pr).headBranchName }}
+          ref: ${{ needs.release-pull-request.outputs.headBranchName }}
 
       - name: Setup `uv`
         uses: astral-sh/setup-uv@v6
