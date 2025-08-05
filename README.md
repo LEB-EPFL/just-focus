@@ -39,6 +39,14 @@ results = pupil.propgate(0.0, inputs, padding_factor=4)
 pip install just-focus
 ```
 
+### Extras
+
+Install additional dependencies for making plots:
+
+```console
+pip install just-focus[plot]
+```
+
 ## Development
 
 ### Set up the development environment
