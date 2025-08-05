@@ -7,6 +7,22 @@ license = "GPL-3.0-or-later"
 authors = [
     { name = "Kyle Douglass", email = "kyle.douglass@epfl.ch" }
 ]
+keywords = ["microscopy", "electromagnetism", "richards-wolf", "diffraction"]
+classifiers = [
+  # How mature is this project? Common values are
+  #   3 - Alpha
+  #   4 - Beta
+  #   5 - Production/Stable
+  "Development Status :: 4 - Beta",
+
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Physics",
+
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
 requires-python = ">=3.11"
 
 dependencies = [
