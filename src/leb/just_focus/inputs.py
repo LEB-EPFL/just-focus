@@ -42,12 +42,18 @@ class HalfmoonPhase(StrEnum):
     PLUS_45 = "plus_45"
     MINUS_45 = "minus_45"
 
-    def arrays(self, mesh_size: int, phase: float = np.pi, phase_mask_center: tuple[float, float] = (0.0, 0.0)) -> tuple[NDArray[Float], NDArray[Float]]:
+    def arrays(
+        self,
+        mesh_size: int,
+        phase: float = np.pi,
+        phase_mask_center: tuple[float, float] = (0.0, 0.0)
+    ) -> tuple[NDArray[Float], NDArray[Float]]:
         normed_coords = np.linspace(-1, 1, mesh_size)
         x, y = np.meshgrid(normed_coords, normed_coords)
         x0, y0 = phase_mask_center
         x -= x0
         y -= y0
+
         phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
         match self:
             case HalfmoonPhase.HORIZONTAL:
