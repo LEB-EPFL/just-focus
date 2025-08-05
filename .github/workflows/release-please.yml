@@ -6,7 +6,7 @@ on:
       - main
   
 jobs:
-  release-please:
+  release-pull-request:
     runs-on: ubuntu-latest
     steps:
       - name: Create PR with release-please
@@ -19,6 +19,10 @@ jobs:
       # release-please is unable to update uv.lock, so we do it ourselves
       # https://github.com/googleapis/release-please/issues/2455#issuecomment-2569782706
       # https://github.com/astral-sh/uv/issues/7533
+
+      - name: Debug context
+        run: |
+          echo "PR context: ${{ fromJson(steps.release-please.outputs) }}"
 
       - name: Checkout release branch
         uses: actions/checkout@v4
