@@ -4,6 +4,7 @@ version = "0.3.0"
 description = "Vector electromagnetic field calculations in the focus of high NA microscope objectives."
 readme = "README.md"
 license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [
     { name = "Kyle Douglass", email = "kyle.douglass@epfl.ch" }
 ]
@@ -28,6 +29,9 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.3.2",
 ]
+
+[project.urls]
+Repository = "https://github.com/LEB-EPFL/just-focus"
 
 [project.optional-dependencies]
 plot = [
