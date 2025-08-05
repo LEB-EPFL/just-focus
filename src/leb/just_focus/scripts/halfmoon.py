@@ -22,7 +22,8 @@ def main(plot=True) -> None:
         mesh_size=mesh_size,
         polarization=Polarization.LINEAR_Y,
         orientation=HalfmoonPhase.MINUS_45,
-        phase=np.pi
+        phase=np.pi,
+        phase_mask_center=(0.0, 0.0),
     )
 
     results = pupil.propgate(0.0, inputs, padding_factor=4)
