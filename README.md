@@ -1,6 +1,7 @@
 # Just Focus
 
-![Tests](https://github.com/LEB-EPFL/just-focus/actions/workflows/tests.yml/badge.svg)
+![CI](https://github.com/LEB-EPFL/just-focus/actions/workflows/tests.yml/badge.svg)
+![PyPI - Version](https://img.shields.io/pypi/v/just-focus)
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
@@ -30,6 +31,12 @@ inputs = InputField.gaussian_pupil(
 )
 
 results = pupil.propgate(0.0, inputs, padding_factor=4)
+```
+
+## Installation
+
+```console
+pip install just-focus
 ```
 
 ## Development
