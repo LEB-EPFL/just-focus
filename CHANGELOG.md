@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/LEB-EPFL/just-focus/compare/v0.2.1...v0.2.2) (2025-08-05)
+
+
+### Documentation
+
+* Add installation instructions for plot extra ([#15](https://github.com/LEB-EPFL/just-focus/issues/15)) ([6a2fe14](https://github.com/LEB-EPFL/just-focus/commit/6a2fe1495698fc3a13f31b36f0c1643b532e0bb8))
+
 ## [0.2.1](https://github.com/LEB-EPFL/just-focus/compare/v0.2.0...v0.2.1) (2025-08-05)
 
 
