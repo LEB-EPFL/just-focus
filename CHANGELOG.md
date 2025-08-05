@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/LEB-EPFL/just-focus/compare/v0.1.0...v0.2.0) (2025-08-05)
+
+
+### Features
+
+* Add argument to set phase mask center ([#5](https://github.com/LEB-EPFL/just-focus/issues/5)) ([b4ffd5f](https://github.com/LEB-EPFL/just-focus/commit/b4ffd5f5357f20320bce94e58376839a16fcfcc4))
+
 ## 0.1.0 (2025-08-04)
 
 
