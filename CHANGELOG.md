@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/LEB-EPFL/just-focus/compare/v0.2.0...v0.2.1) (2025-08-05)
+
+
+### Documentation
+
+* Add installation instructions and PyPI badge to README ([#12](https://github.com/LEB-EPFL/just-focus/issues/12)) ([a0633de](https://github.com/LEB-EPFL/just-focus/commit/a0633de399a29052ad177b44cc06d8aa1f272d0c))
+
 ## [0.2.0](https://github.com/LEB-EPFL/just-focus/compare/v0.1.0...v0.2.0) (2025-08-05)
 
 
