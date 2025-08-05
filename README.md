@@ -47,6 +47,15 @@ Install additional dependencies for making plots:
 pip install just-focus[plot]
 ```
 
+Then you can use functions in the `leb.just_focus.plots` module to plot the inputs and results.
+
+```python
+from leb.just_focus.plots import plot_inputs
+
+plot_inputs(inputs, pupil)
+
+```
+
 ## Development
 
 ### Set up the development environment

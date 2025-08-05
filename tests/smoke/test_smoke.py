@@ -1,6 +1,7 @@
 import numpy as np
 
 from leb.just_focus import InputField, Polarization, Pupil
+from leb.just_focus.plots import plot_inputs
 
 
 def test_smoke() -> None:
@@ -19,3 +20,5 @@ def test_smoke() -> None:
     results = pupil.propgate(0.0, inputs, padding_factor=5)
 
     results.intensity()
+
+    plot_inputs(inputs, pupil, show=False)
