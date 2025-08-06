@@ -56,6 +56,16 @@ plot_inputs(inputs, pupil)
 
 ```
 
+## Use
+
+just-focus follows this workflow:
+
+1. Define your input field in the pupil using `InputField`.
+2. Define a pupil using `Pupil`.
+3. Compute the focal field in the desired z-plane using the `Pupil.propagate` method.
+`
+`Pupil.propagate` returns an instance of a `FocalField` object which contains a complex 2D array for each field direction.
+
 ## Development
 
 ### Set up the development environment
