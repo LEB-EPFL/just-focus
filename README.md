@@ -181,6 +181,42 @@ Stop.TANH
 
 A uniform stop is pupil with a discontinuous edge. `Stop.TANH` softens this edge with a hyperbolic tangent function as introduced by Leutenegger, et al. in the Resources section below.
 
+#### Pupil.propagate
+
+To compute the focal field at a given z plane, use:
+
+```python
+pupil.propagate(z_um, inputs, padding_factor=4)
+```
+
+where `z_um = 0` corresponds to the focal plane of the objective and`inputs` is an `InputField` instance.
+
+`padding_factor` describes the amount by which the input field will be zero-padded before computing the fast Fourier transforms. If the linear size of an input field array is N, then the padded array will be of size `N * 2^padding_factor` in each dimension. This will also be the size of the resulting focal field arrays.
+
+### FocalField
+
+`Pupil.propagate` returns a `FocalField` instance which is defined as follows:
+
+```python
+@dataclass(frozen=True)
+class FocalField:
+    field_x: NDArray[Complex]
+    field_y: NDArray[Complex]
+    field_z: NDArray[Complex]
+    x_um: NDArray[Float]
+    y_um: NDArray[Float]
+
+    def intensity(self, normalize: bool = True) -> NDArray[Float]:
+        I = np.abs(self.field_x)**2 + np.abs(self.field_y)**2 + np.abs(self.field_z)**2
+        if normalize:
+            return I / np.max(I)
+        return I
+```
+
+It has five parameters: three, 2D complex arrays representing the field in each direction and two, 1D arrays representing the x- and y-coordinates in the focal region.
+
+In addition, there is an `intenstiy` helper method that computes the intensity from the fields.
+
 ## Development
 
 ### Set up the development environment
