@@ -8,40 +8,11 @@ on:
 jobs:
   release-pull-request:
     runs-on: ubuntu-latest
-    outputs:
-      prs_created: ${{ steps.release-please.outputs.prs_created }}
-      pr_json_string: ${{ steps.release-please.outputs.pr }}
     steps:
       - name: Create PR with release-please
-        id: release-please
         uses: googleapis/release-please-action@v4
         with:
-          release-type: python
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
   
-  # release-please is unable to update uv.lock, so we do it ourselves
-  # https://github.com/googleapis/release-please/issues/2455#issuecomment-2569782706
-  # https://github.com/astral-sh/uv/issues/7533
-  update-uv-lock:
-    runs-on: ubuntu-latest
-    needs: release-pull-request
-    if : needs.release-pull-request.outputs.prs_created == 'true'
-    steps:
-      - name: Checkout release branch
-        uses: actions/checkout@v4
-        with:
-          # PAT is necessary to trigger new test workflows after the lock is updated
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-          ref: ${{ fromJson(needs.release-pull-request.outputs.pr_json_string).headBranchName }}
-
-      - name: Setup `uv`
-        uses: astral-sh/setup-uv@v6
-
-      - name: Update `uv.lock`
-        run: |
-          uv lock
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add uv.lock
-          git commit -m "ci: update uv.lock"
-          git push
