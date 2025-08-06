@@ -1,6 +1,6 @@
 [project]
 name = "just-focus"
-version = "0.3.0"
+version = "0.3.1"
 description = "Vector electromagnetic field calculations in the focus of high NA microscope objectives."
 readme = "README.md"
 license = "GPL-3.0-or-later"
