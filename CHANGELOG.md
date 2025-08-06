@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/LEB-EPFL/just-focus/compare/v0.3.0...v0.3.1) (2025-08-06)
+
+
+### Documentation
+
+* Add description of InputField to README ([29b4dee](https://github.com/LEB-EPFL/just-focus/commit/29b4dee95f2ff36cd7c612917c2c753b59158d94))
+* Add propagate and FocalField docs to the README ([04e2118](https://github.com/LEB-EPFL/just-focus/commit/04e211840fda754ff522a78b211043b5b10d9155))
+* Add Pupil explanation to the README ([8eb6b61](https://github.com/LEB-EPFL/just-focus/commit/8eb6b61f9ae08b67bd30104df35d31ff1845dc26))
+* Add workflow overview to README ([8951c5b](https://github.com/LEB-EPFL/just-focus/commit/8951c5b27dc5b285ebd45e9710d14d0745561092))
+
 ## [0.3.0](https://github.com/LEB-EPFL/just-focus/compare/v0.2.2...v0.3.0) (2025-08-05)
 
 
