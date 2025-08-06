@@ -72,6 +72,8 @@ just-focus follows this workflow:
 Six parameters are required to construct a new `InputField`:
 
 ```python
+from leb.just_focus import InputField
+
 input = InputField(
     amplitude_x,
     amplitude_y,
@@ -104,6 +106,7 @@ Three factory methods exist to compute commonly encountered input fields:
 ```python
 from leb.just_focus import HalfmoonPhase, InputField, Polarization
 
+mesh_size = 64
 
 gaussian = InputField.gaussian_pupil(
     beam_center=(0.0, 0.0),
@@ -147,6 +150,36 @@ HalfmoonPhase.VERTICAL
 HalfmoonPhase.MINUS_45
 HalfmoonPhase.PLUS_45
 ```
+
+### Pupil
+
+A `Pupil` instance is defined as follows:
+
+```python
+from leb.just_focus import Pupil, Stop
+
+pupil = Pupil(
+    na=1.4,
+    wavelength_um=0.561,
+    refractive_index=1.518,
+    focal_length_mm=3.3333,
+    mesh_size=64,
+    stop=Stop.TANH,
+)
+```
+
+The refractive index is that of the immersion medium. The incident beam is assumed to be incident from air (n = 1).
+
+The focal length of an objective may be computed from the ratio between the corresponding tube lens focal length and its magnification. For example, a 100x Nikon objective will have a focal length of 2 mm because Nikon tube lenses have focal lengths of 200 mm, and 200 mm / 100 = 2 mm. (Note that the focal length used here is the true focal length of the objective and is not scaled by the refractive index of the immersion medium, such as that used by Herrera and Quinto-Su and in the textbook by Novotny and Hecht. See the Resources section below.)
+
+The stop parameter determines whether and how the aperture should be softened to reduce artifacts from the fast Fourier transform. Possible values are:
+
+```
+Stop.UNIFORM
+Stop.TANH
+```
+
+A uniform stop is pupil with a discontinuous edge. `Stop.TANH` softens this edge with a hyperbolic tangent function as introduced by Leutenegger, et al. in the Resources section below.
 
 ## Development
 
