@@ -179,7 +179,7 @@ Stop.UNIFORM
 Stop.TANH
 ```
 
-A uniform stop is pupil with a discontinuous edge. `Stop.TANH` softens this edge with a hyperbolic tangent function as introduced by Leutenegger, et al. in the Resources section below.
+A uniform stop is a pupil with a discontinuous edge. `Stop.TANH` softens this edge with a hyperbolic tangent function as introduced by Leutenegger, et al. in the Resources section below.
 
 #### Pupil.propagate
 
@@ -241,6 +241,7 @@ pytest
 
 ## Other Packages to Compute Vectorial Focal Fields
 
+- PSF-Generator (Python) [https://github.com/Biomedical-Imaging-Group/psf_generator](https://github.com/Biomedical-Imaging-Group/psf_generator)
 - InFocus (MATLAB) [https://github.com/QF06/InFocus](https://github.com/QF06/InFocus)
 - Debye Diffraction Code (MATLAB and Python) [https://github.com/jdmanton/debye_diffraction_code](https://github.com/jdmanton/debye_diffraction_code)
 
