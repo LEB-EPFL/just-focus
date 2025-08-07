@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/LEB-EPFL/just-focus/compare/v0.3.1...v0.3.2) (2025-08-07)
+
+
+### Documentation
+
+* Add PSF-Generator to list of similar packages ([0aa8afd](https://github.com/LEB-EPFL/just-focus/commit/0aa8afd40b760bd9058843cc616cea9b73673c29))
+* Improve explanation of the focal in the README ([e553b1e](https://github.com/LEB-EPFL/just-focus/commit/e553b1efcb77e1202484d3d1d1dcd29f85a77736))
+
 ## [0.3.1](https://github.com/LEB-EPFL/just-focus/compare/v0.3.0...v0.3.1) (2025-08-06)
 
 
