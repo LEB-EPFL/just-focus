@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/LEB-EPFL/just-focus/actions/workflows/tests.yml/badge.svg)
 ![PyPI - Version](https://img.shields.io/pypi/v/just-focus)
+[![DOI](https://zenodo.org/badge/1028418053.svg)](https://zenodo.org/badge/latestdoi/1028418053)
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
