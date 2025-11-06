@@ -17,16 +17,23 @@ def main(plot=True) -> None:
     )
 
     inputs = InputField.gaussian_halfmoon_pupil(
-        beam_center=(0.0, 0.5),
+        beam_center=(0.0, 0.0),
         waist=2.0,
         mesh_size=mesh_size,
         polarization=Polarization.LINEAR_Y,
-        orientation=HalfmoonPhase.MINUS_45,
+        orientation=HalfmoonPhase.HORIZONTAL,
         phase=np.pi,
-        phase_mask_center=(0.0, 0.0),
+        phase_jump_shift=(0.0, 0.0),
+        phase_mask_size = 1.0,
+        grating_period = 0.0,
+        grating_angle = 0.0,
+        noise_level=0.3
     )
-
+    
     results = pupil.propgate(0.0, inputs, padding_factor=4)
+    cmap_stop = 'gray'
+    cmap_phase = 'gray'
+    cmap_ill = 'gray'
 
     _, axs = plt.subplots(2, 4, figsize=(12, 6))
     axs[0, 0].imshow(
@@ -53,7 +60,8 @@ def main(plot=True) -> None:
     axs[0, 2].imshow(
         inputs.phase_x,
         vmin=0,
-        vmax=1,
+        vmax=2*np.pi,
+        cmap = cmap_phase,
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
@@ -63,7 +71,8 @@ def main(plot=True) -> None:
     axs[0, 3].imshow(
         inputs.phase_y,
         vmin=0,
-        vmax=1,
+        vmax=2*np.pi,
+        cmap = cmap_phase,
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
@@ -93,7 +102,7 @@ def main(plot=True) -> None:
     axs[1, 1].set_title("Polarization, y")
     axs[1, 1].set_xlabel("x, mm")
 
-    axs[1, 2].imshow(pupil.stop_arr, vmin=0, vmax=1)
+    axs[1, 2].imshow(pupil.stop_arr, vmin=0, vmax=1, cmap=cmap_stop)
     axs[1, 2].set_title("Stop")
     axs[1, 2].set_xlabel("x, mm")
 
@@ -103,6 +112,7 @@ def main(plot=True) -> None:
         vmin=0,
         vmax=1,
         origin="lower",
+        cmap=cmap_ill,
         extent=(results.x_um[0], results.x_um[-1], results.y_um[0], results.y_um[-1])
     )
     axs[1, 3].set_title("Intensity")
