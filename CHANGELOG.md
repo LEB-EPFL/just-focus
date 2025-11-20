@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/LEB-EPFL/just-focus/compare/v0.3.2...v0.3.3) (2025-11-20)
+
+
+### Bug Fixes
+
+* Ensure that the origin is sampled in the output coordinate arrays ([#41](https://github.com/LEB-EPFL/just-focus/issues/41)) ([992ee6b](https://github.com/LEB-EPFL/just-focus/commit/992ee6b3246dfdb4115d14f1b1c0216fb1c74900))
+
 ## [0.3.2](https://github.com/LEB-EPFL/just-focus/compare/v0.3.1...v0.3.2) (2025-08-07)
 
 
