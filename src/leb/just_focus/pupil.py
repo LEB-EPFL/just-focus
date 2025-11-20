@@ -141,8 +141,8 @@ class Pupil:
 
         dx = self.wavelength_um / 2 / self.na / 2**padding_factor
         dy = dx
-        x_um = np.linspace(-dx * (field_x.shape[0] // 2), dx * (field_x.shape[0] // 2), field_x.shape[0])
-        y_um = np.linspace(-dy * (field_x.shape[1] // 2), dy * (field_y.shape[1] // 2), field_y.shape[1])
+        x_um = dx * np.linspace(-field_x.shape[0] // 2, field_x.shape[0] // 2 - 1, field_x.shape[0])
+        y_um = dy * np.linspace(-field_y.shape[1] // 2, field_y.shape[1] // 2 - 1, field_y.shape[1])
 
         return FocalField(field_x=field_x, field_y=field_y, field_z=field_z, x_um=x_um, y_um=y_um)
     
