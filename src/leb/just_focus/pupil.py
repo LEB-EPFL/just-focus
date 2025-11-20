@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 import numpy as np
-from numpy.fft import fftshift, ifft2, ifftshift
+from numpy.fft import ifft2, ifftshift
 from numpy.typing import NDArray
 
 from .dtypes import Float
@@ -135,9 +135,9 @@ class Pupil:
         correction_scaling = 1j * 2 * np.pi * 0.5 / px.shape[0]
         phase_correction = np.exp(correction_scaling * px + correction_scaling * py)
 
-        field_x = fftshift(ifft2(ifftshift(far_field_x_padded))) * phase_correction
-        field_y = fftshift(ifft2(ifftshift(far_field_y_padded))) * phase_correction
-        field_z = fftshift(ifft2(ifftshift(far_field_z_padded))) * phase_correction
+        field_x = ifftshift(ifft2(ifftshift(far_field_x_padded))) * phase_correction
+        field_y = ifftshift(ifft2(ifftshift(far_field_y_padded))) * phase_correction
+        field_z = ifftshift(ifft2(ifftshift(far_field_z_padded))) * phase_correction
 
         dx = self.wavelength_um / 2 / self.na / 2**padding_factor
         dy = dx
