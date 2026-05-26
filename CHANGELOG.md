@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/LEB-EPFL/just-focus/compare/v0.3.3...v0.3.4) (2026-05-26)
+
+
+### Bug Fixes
+
+* trigger release-please ([49d7764](https://github.com/LEB-EPFL/just-focus/commit/49d7764f0a14a9b49b6a84faa67564c686397ad1))
+
 ## [0.3.3](https://github.com/LEB-EPFL/just-focus/compare/v0.3.2...v0.3.3) (2025-11-20)
 
 
