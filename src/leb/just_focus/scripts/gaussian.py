@@ -17,8 +17,8 @@ def main(plot=True) -> None:
     )
 
     inputs = InputField.gaussian_pupil(
-        beam_center=(0.0, 0.0),
-        waist=1.0,
+        beam_center_pupil=(0.0, 0.0),
+        waist_pupil=1.0,
         mesh_size=mesh_size,
         polarization=Polarization.LINEAR_Y,
     )

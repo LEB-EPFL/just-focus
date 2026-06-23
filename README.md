@@ -18,8 +18,8 @@ from leb.just_focus import InputField, Polarization, Pupil, Stop
 mesh_size = 64
 
 inputs = InputField.gaussian_pupil(
-    beam_center=(0.0, 0.0),
-    waist=1.0,
+    beam_center_pupil=(0.0, 0.0),
+    waist_pupil=1.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
 )
@@ -110,15 +110,15 @@ from leb.just_focus import HalfmoonPhase, InputField, Polarization
 mesh_size = 64
 
 gaussian = InputField.gaussian_pupil(
-    beam_center=(0.0, 0.0),
-    waist=1.0,
+    beam_center_pupil=(0.0, 0.0),
+    waist_pupil=1.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
 )
 
 halfmoon = InputField.gaussian_halfmoon_pupil(
-    beam_center=(0.0, 0.5),
-    waist=2.0,
+    beam_center_pupil=(0.0, 0.5),
+    waist_pupil=2.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
     orientation=HalfmoonPhase.MINUS_45,
@@ -217,6 +217,21 @@ class FocalField:
 It has five parameters: three, 2D complex arrays representing the field in each direction and two, 1D arrays representing the x- and y-coordinates in the focal region.
 
 In addition, there is an `intenstiy` helper method that computes the intensity from the fields.
+
+### Coordinate Reference Systems and Meshes
+
+There are two, 2D computational meshes used in just-focus:
+
+1. the pupil mesh, and
+2. the focal field mesh.
+
+The pupil mesh has two different coordinate reference systems: one for the real physical coordinates of the pupil and another for the k-space coordinates. The only difference between the two is that the physical mesh is scaled by the objective focal length (in air) times the NA, whereas the k-space mesh is scaled by the free space wavevector times the NA.
+
+![An illustration of the coordinate system and the computational mesh used in these simulations.](/assets/pupil-function-simulation-mesh.png)
+
+The pupil mesh samples are always taken at the centers of their corresponding cells. The origin is at the corners where the four center cells meet; as a result, the origin of the pupil is not sampled, which is useful for avoiding divisions by zero during field calculations. On the other hand, by not sampling the origin the code must apply a phase correction term to the samples in k-space to ensure correct application of the FFT. (See the manuscript by Herrera and Quinto-Su cited below for more information.)
+
+Unlike the pupil mesh, the origin of the coordinate system is sampled by the focal field mesh because of how the FFT works. It lies at pixel `L / 2`, where `L` is the linear square mesh size. The focal field mesh spacing is `dx = λ/(2·NA·2^padding_factor)` and total the FOV is `L * dx = mesh_size * λ/(2·NA)`, i.e. the FOV is independent of any padding applied before the FFT.
 
 ## Development
 
