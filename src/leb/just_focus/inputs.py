@@ -97,7 +97,7 @@ class InputField:
 
     Methods
     -------
-    gaussian_pupil(beam_center, waist, mesh_size, polarization)
+    gaussian_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization)
         Create a Gaussian pupil field with a specified waist size.
     uniform_pupil(mesh_size, polarization)
         Create a uniform pupil field with specified polarization.
@@ -112,20 +112,20 @@ class InputField:
 
     @staticmethod
     def _gaussian_amplitude(
-        beam_center: tuple[float, float],
-        waist: float | tuple[float, float],
+        beam_center_pupil: tuple[float, float],
+        waist_pupil: float | tuple[float, float],
         mesh_size: int
     ) -> tuple[NDArray[Float], NDArray[Float]]:
         """Calculate a Gaussian amplitude for the pupil field."""
-        if isinstance(waist, (int, float)):
-            waist_x = waist_y = waist
+        if isinstance(waist_pupil, (int, float)):
+            waist_x = waist_y = waist_pupil
         else:
-            waist_x, waist_y = waist
+            waist_x, waist_y = waist_pupil
 
         normed_coords = np.linspace(-1, 1, mesh_size)
         x, y = np.meshgrid(normed_coords, normed_coords)
-        x0: float = beam_center[0]
-        y0: float = beam_center[1]
+        x0: float = beam_center_pupil[0]
+        y0: float = beam_center_pupil[1]
         amplitude_x = np.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
         amplitude_y = np.copy(amplitude_x)
 
@@ -134,8 +134,8 @@ class InputField:
     @classmethod
     def gaussian_pupil(
         cls,
-        beam_center: tuple[float, float],
-        waist: float | tuple[float, float],
+        beam_center_pupil: tuple[float, float],
+        waist_pupil: float | tuple[float, float],
         mesh_size: int,
         polarization: Polarization
     ) -> InputField:
@@ -143,9 +143,9 @@ class InputField:
 
         Parameters
         ----------
-        beam_center : tuple of float
+        beam_center_pupil : tuple of float
             The center of the Gaussian beam in normalized pupil coordinates (x, y).
-        waist : float or tuple of float
+        waist_pupil : float or tuple of float
             The waist size of the Gaussian beam in normalized pupil coordinates. If a
             single float is provided, it is used for both x and y dimensions.
         mesh_size : int
@@ -160,7 +160,7 @@ class InputField:
 
         """
         polarization_x, polarization_y = polarization.arrays(mesh_size)
-        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center, waist, mesh_size)
+        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
         phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
         phase_y = np.zeros((mesh_size, mesh_size), dtype=Float)
@@ -177,16 +177,42 @@ class InputField:
     @classmethod
     def gaussian_halfmoon_pupil(
         cls,
-        beam_center: tuple[float, float],
-        waist: float | tuple[float, float],
+        beam_center_pupil: tuple[float, float],
+        waist_pupil: float | tuple[float, float],
         mesh_size: int,
         polarization:Polarization,
         orientation: HalfmoonPhase = HalfmoonPhase.HORIZONTAL,
         phase: float = np.pi,
         phase_mask_center: tuple[float, float] = (0.0, 0.0)
     ) -> InputField:
+        """Create a halfmoon pupil field with a Gaussian beam amplitude.
+        
+        Parameters
+        ----------
+        beam_center_pupil : tuple of float
+            The center of the Gaussian beam in normalized pupil coordinates (x, y).
+        waist_pupil : float or tuple of float
+            The waist size of the Gaussian beam in normalized pupil coordinates. If a
+            single float is provided, it is used for both x and y dimensions.
+        mesh_size : int
+            The size of the mesh grid for the pupil field.
+        polarization : Polarization
+            The polarization state of the field.
+        orientation : HalfmoonPhase, optional
+            The orientation of the halfmoon phase mask. Default is HalfmoonPhase.HORIZONTAL.
+        phase : float, optional
+            The phase shift applied to the halfmoon mask. Default is np.pi.
+        phase_mask_center : tuple of float, optional
+            The center of the phase mask in normalized pupil coordinates (x, y). Default is (0.0, 0.0).
+
+        Returns
+        -------
+        InputField
+            The input field with Gaussian amplitude and halfmoon phase mask.
+
+        """
         polarization_x, polarization_y = polarization.arrays(mesh_size)
-        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center, waist, mesh_size)
+        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
         phase_x, phase_y = orientation.arrays(mesh_size, phase, phase_mask_center)
 

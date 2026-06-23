@@ -18,8 +18,8 @@ from leb.just_focus import InputField, Polarization, Pupil, Stop
 mesh_size = 64
 
 inputs = InputField.gaussian_pupil(
-    beam_center=(0.0, 0.0),
-    waist=1.0,
+    beam_center_pupil=(0.0, 0.0),
+    waist_pupil=1.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
 )
@@ -110,15 +110,15 @@ from leb.just_focus import HalfmoonPhase, InputField, Polarization
 mesh_size = 64
 
 gaussian = InputField.gaussian_pupil(
-    beam_center=(0.0, 0.0),
-    waist=1.0,
+    beam_center_pupil=(0.0, 0.0),
+    waist_pupil=1.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
 )
 
 halfmoon = InputField.gaussian_halfmoon_pupil(
-    beam_center=(0.0, 0.5),
-    waist=2.0,
+    beam_center_pupil=(0.0, 0.5),
+    waist_pupil=2.0,
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
     orientation=HalfmoonPhase.MINUS_45,
