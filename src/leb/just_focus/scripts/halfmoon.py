@@ -17,13 +17,14 @@ def main(plot=True) -> None:
     )
 
     inputs = InputField.gaussian_halfmoon_pupil(
-        beam_center_pupil=(0.0, 0.5),
+        beam_center_pupil=(0.0, 0.0),
         waist_pupil=2.0,
         mesh_size=mesh_size,
         polarization=Polarization.LINEAR_Y,
         orientation=HalfmoonPhase.MINUS_45,
         phase=np.pi,
         phase_mask_center=(0.0, 0.0),
+        pupil_mask_radius=1.0,
     )
 
     results = pupil.propgate(0.0, inputs, padding_factor=4)
