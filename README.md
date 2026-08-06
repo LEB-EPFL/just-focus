@@ -124,7 +124,6 @@ halfmoon = InputField.gaussian_halfmoon_pupil(
     orientation=HalfmoonPhase.MINUS_45,
     phase=np.pi,
     phase_mask_center=(0.0, 0.0),
-    mask_radius_pupil = 1.0,
 )
 
 uniform = InputField.uniform_pupil(
@@ -167,6 +166,7 @@ pupil = Pupil(
     focal_length_mm=3.3333,
     mesh_size=64,
     stop=Stop.TANH,
+    stop_radius_pupil=1.0,
 )
 ```
 
@@ -182,6 +182,8 @@ Stop.TANH
 ```
 
 A uniform stop is a pupil with a discontinuous edge. `Stop.TANH` softens this edge with a hyperbolic tangent function as introduced by Leutenegger, et al. in the Resources section below.
+
+`stop_radius_pupil` sets the radius of the stop in normalized pupil coordinates (1.0 is the pupil's edge, i.e. the rated NA). Values less than 1.0 model stopping down the pupil, e.g. with an iris, while keeping `na` fixed; the input field is simply cropped to this radius before propagation.
 
 #### Pupil.propagate
 

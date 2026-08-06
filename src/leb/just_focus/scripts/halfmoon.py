@@ -7,13 +7,14 @@ from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil, Stop
 
 
 def main(plot=True) -> None:
-    mesh_size = 64
+    mesh_size = 256
     pupil = Pupil(
         na=1.4,
         refractive_index=1.518,
         wavelength_um=0.561,
         mesh_size=mesh_size,
         stop=Stop.TANH,
+        stop_radius_pupil=1.0,
     )
 
     inputs = InputField.gaussian_halfmoon_pupil(
@@ -24,7 +25,6 @@ def main(plot=True) -> None:
         orientation=HalfmoonPhase.MINUS_45,
         phase=np.pi,
         phase_mask_center=(0.0, 0.0),
-        mask_radius_pupil=1.0,
     )
 
     results = pupil.propgate(0.0, inputs, padding_factor=4)

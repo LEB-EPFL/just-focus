@@ -27,13 +27,13 @@ class Stop(StrEnum):
     UNIFORM = "uniform"
     TANH = "tanh"
 
-    def array(self, px: NDArray[Float], py: NDArray[Float]) -> NDArray[Float]:
+    def array(self, px: NDArray[Float], py: NDArray[Float], radius: float = 1.0) -> NDArray[Float]:
         match self:
             case Stop.UNIFORM:
-                return ((px**2 + py**2) <= 1).astype(Float)
+                return ((px**2 + py**2) <= radius**2).astype(Float)
             case Stop.TANH:
                 mesh_size = px.shape[0]
-                return 0.5 * (1 + np.tanh(1.5 * mesh_size * (1 - np.sqrt(px**2 + py**2))))
+                return 0.5 * (1 + np.tanh(1.5 * mesh_size * (radius - np.sqrt(px**2 + py**2))))
             case _:
                 raise ValueError(f"Unsupported stop type: {self}")
 
@@ -46,6 +46,7 @@ class Pupil:
     focal_length_mm: float = 3.3333
     mesh_size: int = 64
     stop: Stop = Stop.UNIFORM
+    stop_radius_pupil: float = 1.0
 
     x_mm: NDArray[Float] = field(init=False, repr=False)
     y_mm: NDArray[Float] = field(init=False, repr=False)
@@ -57,10 +58,13 @@ class Pupil:
     k: float = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
+        if self.stop_radius_pupil <= 0.0 or self.stop_radius_pupil > 1.0:
+            raise ValueError("stop_radius_pupil must be between 0 and 1.")
+
         normed_coords = np.linspace(-1, 1, self.mesh_size)
-        
+
         px, py = np.meshgrid(normed_coords, normed_coords)
-        self.stop_arr = self.stop.array(px, py)
+        self.stop_arr = self.stop.array(px, py, self.stop_radius_pupil)
 
         # Far field coordinate system
         f = self.focal_length_mm / 1e3 # Convert focal length from mm to meters
