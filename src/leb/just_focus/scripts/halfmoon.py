@@ -24,7 +24,7 @@ def main(plot=True) -> None:
         orientation=HalfmoonPhase.MINUS_45,
         phase=np.pi,
         phase_mask_center=(0.0, 0.0),
-        pupil_mask_radius=1.0,
+        mask_radius_pupil=1.0,
     )
 
     results = pupil.propgate(0.0, inputs, padding_factor=4)
