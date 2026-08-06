@@ -183,7 +183,8 @@ class InputField:
         polarization:Polarization,
         orientation: HalfmoonPhase = HalfmoonPhase.HORIZONTAL,
         phase: float = np.pi,
-        phase_mask_center: tuple[float, float] = (0.0, 0.0)
+        phase_mask_center: tuple[float, float] = (0.0, 0.0),
+        pupil_mask_radius: float = 1.0,
     ) -> InputField:
         """Create a halfmoon pupil field with a Gaussian beam amplitude.
         
@@ -203,7 +204,12 @@ class InputField:
         phase : float, optional
             The phase shift applied to the halfmoon mask. Default is np.pi.
         phase_mask_center : tuple of float, optional
-            The center of the phase mask in normalized pupil coordinates (x, y). Default is (0.0, 0.0).
+            The center of the phase mask in normalized pupil coordinates (x, y). Default is
+            (0.0, 0.0).
+        pupil_mask_radius : float, optional
+            The radius of the pupil mask in normalized pupil coordinates. Outside of this radius
+            the amplitude, phase, and polarizations are a constant zero value. This can be used to
+            tune the size of the resulting bilobed focal field. Default is 1.0 (no masking).
 
         Returns
         -------
@@ -211,10 +217,23 @@ class InputField:
             The input field with Gaussian amplitude and halfmoon phase mask.
 
         """
+        if pupil_mask_radius < 0.0 or pupil_mask_radius > 1.0:
+            raise ValueError("pupil_mask_radius must be between 0 and 1.")
+
         polarization_x, polarization_y = polarization.arrays(mesh_size)
         amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
         phase_x, phase_y = orientation.arrays(mesh_size, phase, phase_mask_center)
+
+        normed_coords = np.linspace(-1, 1, mesh_size)
+        x, y = np.meshgrid(normed_coords, normed_coords)
+        mask = x**2 + y**2 > pupil_mask_radius**2
+        phase_x[mask] = 0.0
+        phase_y[mask] = 0.0
+        amplitude_x[mask] = 0.0
+        amplitude_y[mask] = 0.0
+        polarization_x[mask] = 0.0
+        polarization_y[mask] = 0.0
 
         return InputField(
             amplitude_x=amplitude_x,
