@@ -257,9 +257,10 @@ pytest
 
 ## Other Packages to Compute Vectorial Focal Fields
 
-- PSF-Generator (Python) [https://github.com/Biomedical-Imaging-Group/psf_generator](https://github.com/Biomedical-Imaging-Group/psf_generator)
-- InFocus (MATLAB) [https://github.com/QF06/InFocus](https://github.com/QF06/InFocus)
-- Debye Diffraction Code (MATLAB and Python) [https://github.com/jdmanton/debye_diffraction_code](https://github.com/jdmanton/debye_diffraction_code)
+- PSF-Generator (Python) <https://github.com/Biomedical-Imaging-Group/psf_generator>
+- InFocus (MATLAB) <https://github.com/QF06/InFocus>
+- Debye Diffraction Code (MATLAB and Python) <https://github.com/jdmanton/debye_diffraction_code>
+- PyFocus <https://github.com/fcaprile/PyFocus>
 
 ## Resources
 
