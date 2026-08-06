@@ -102,7 +102,7 @@ Alternatively, the relative phases may be determined by setting `phase_x` and `p
 
 #### Common Input Fields
 
-Three factory methods exist to compute commonly encountered input fields:
+Some factory methods exist to compute commonly encountered input fields:
 
 ```python
 from leb.just_focus import HalfmoonPhase, InputField, Polarization
@@ -124,6 +124,7 @@ halfmoon = InputField.gaussian_halfmoon_pupil(
     orientation=HalfmoonPhase.MINUS_45,
     phase=np.pi,
     phase_mask_center=(0.0, 0.0),
+    mask_radius_pupil = 1.0,
 )
 
 uniform = InputField.uniform_pupil(
