@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.0.0](https://github.com/LEB-EPFL/just-focus/compare/v0.3.4...v1.0.0) (2026-08-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Change waist and beam_center parameter names
+
+### Features
+
+* Add focus_stack script and tests for planes away from z=0 ([#74](https://github.com/LEB-EPFL/just-focus/issues/74)) ([f62996d](https://github.com/LEB-EPFL/just-focus/commit/f62996de3edaa7453978d1923528ca69ef796e23))
+* Add mask to the halfmoon pupil calculations ([#72](https://github.com/LEB-EPFL/just-focus/issues/72)) ([33842b3](https://github.com/LEB-EPFL/just-focus/commit/33842b3b7cbf34c5a5a285be23638124a283612f))
+* Add pupil phase tilts to model beam steering ([#73](https://github.com/LEB-EPFL/just-focus/issues/73)) ([26b09d4](https://github.com/LEB-EPFL/just-focus/commit/26b09d45cd8f33d413363375c0e77b5395d8f0b3))
+
+
+### Bug Fixes
+
+* mask_radius_pupil parameter name ([74a8994](https://github.com/LEB-EPFL/just-focus/commit/74a8994219d58fe7290a79da687eb985fcdc63be))
+
+
+### Documentation
+
+* Add mask_radius_pupil parameter to Halfmoon docs ([b06d2e4](https://github.com/LEB-EPFL/just-focus/commit/b06d2e4a8d6eb32d74e4a265da88fd188d0dc63a))
+* Add PyFocus to list of related software ([4e20c4c](https://github.com/LEB-EPFL/just-focus/commit/4e20c4c99a309723d04eaac628d16b0c11188663))
+* Fix link to scripts directory in README ([527a204](https://github.com/LEB-EPFL/just-focus/commit/527a204fd461173db5453a1a4ec1ea796b965e59))
+
+
+### Code Refactoring
+
+* Change waist and beam_center parameter names ([76aee8f](https://github.com/LEB-EPFL/just-focus/commit/76aee8faf330e6d5f2d1e0db4dcd7f54cf9c2177))
+
 ## [0.3.4](https://github.com/LEB-EPFL/just-focus/compare/v0.3.3...v0.3.4) (2026-05-26)
 
 
