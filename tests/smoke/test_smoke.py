@@ -17,8 +17,8 @@ def test_smoke() -> None:
     )
     inputs = InputField.uniform_pupil(mesh_size, Polarization.CIRCULAR_LEFT)
 
-    results = pupil.propgate(0.0, inputs, padding_factor=5)
-
-    results.intensity()
+    for z_um in (0.0, 0.3, -0.3):
+        results = pupil.propgate(z_um, inputs, padding_factor=5)
+        results.intensity()
 
     plot_inputs(inputs, pupil, show=False)
