@@ -43,6 +43,7 @@ plot = [
 gaussian = "leb.just_focus.scripts.gaussian:main"
 halfmoon = "leb.just_focus.scripts.halfmoon:main"
 displaced_gaussian = "leb.just_focus.scripts.displaced_gaussian:main"
+focus_stack = "leb.just_focus.scripts.focus_stack:main"
 
 [dependency-groups]
 dev = [
