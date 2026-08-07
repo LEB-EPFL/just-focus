@@ -254,7 +254,7 @@ Unlike the pupil mesh, the origin of the coordinate system is sampled by the foc
 
 ### Example Scripts
 
-Command line scripts that illustrate the use of Just Focus may found in <src/leb/just_focus/scripts>. They are also available on the command line, i.e. `uv run gaussian`.
+Command line scripts that illustrate the use of Just Focus may be found in [src/leb/just_focus/scripts](src/leb/just_focus/scripts). They are also available on the command line, i.e. `uv run gaussian`.
 
 Scripts require the `plot` set of optional dependencies. See [the installation instructions](#extras) for more details about how to install them.
 
