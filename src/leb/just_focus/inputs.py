@@ -1,7 +1,7 @@
 """Input fields for the propagation algorithm."""
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 
 import numpy as np
@@ -70,6 +70,67 @@ class HalfmoonPhase(StrEnum):
         return phase_x, phase_y
 
 
+def gaussian_amplitude(
+    beam_center_pupil: tuple[float, float],
+    waist_pupil: float | tuple[float, float],
+    mesh_size: int
+) -> tuple[NDArray[Float], NDArray[Float]]:
+    """Compute a Gaussian amplitude for the pupil field.
+
+    Parameters
+    ----------
+    beam_center_pupil : tuple of float
+        The center of the Gaussian beam in normalized pupil coordinates (x, y).
+    waist_pupil : float or tuple of float
+        The waist size of the Gaussian beam in normalized pupil coordinates. If a
+        single float is provided, it is used for both x and y dimensions.
+    mesh_size : int
+        The size of the mesh grid for the pupil field.
+
+    Returns
+    -------
+    tuple of NDArray[Float]
+        The Gaussian amplitude for the x- and y-directions, respectively.
+
+    """
+    if isinstance(waist_pupil, (int, float)):
+        waist_x = waist_y = waist_pupil
+    else:
+        waist_x, waist_y = waist_pupil
+
+    normed_coords = np.linspace(-1, 1, mesh_size)
+    x, y = np.meshgrid(normed_coords, normed_coords)
+    x0: float = beam_center_pupil[0]
+    y0: float = beam_center_pupil[1]
+    amplitude_x = np.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
+    amplitude_y = np.copy(amplitude_x)
+
+    return amplitude_x, amplitude_y
+
+
+def phase_ramp(tilt_pupil: tuple[float, float], mesh_size: int) -> NDArray[Float]:
+    """Compute a linear phase ramp (blazed grating) across the pupil.
+
+    Parameters
+    ----------
+    tilt_pupil : tuple of float
+        Phase tilt in radians at the pupil edge (px=1, py=1) along the pupil's
+        x- and y-directions, i.e. (tilt_x, tilt_y).
+    mesh_size : int
+        The size of the mesh grid for the pupil field.
+
+    Returns
+    -------
+    NDArray[Float]
+        The phase ramp evaluated on the normalized pupil mesh, i.e.
+        phase(px, py) = tilt_x * px + tilt_y * py.
+
+    """
+    tilt_x, tilt_y = tilt_pupil
+    normed_coords = np.linspace(-1, 1, mesh_size)
+    px, py = np.meshgrid(normed_coords, normed_coords)
+    return (tilt_x * px + tilt_y * py).astype(Float)
+
 
 @dataclass
 class InputField:
@@ -99,8 +160,12 @@ class InputField:
     -------
     gaussian_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization)
         Create a Gaussian pupil field with a specified waist size.
+    gaussian_halfmoon_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization, orientation, phase, phase_mask_center)
+        Create a halfmoon pupil field with a Gaussian beam amplitude.
     uniform_pupil(mesh_size, polarization)
         Create a uniform pupil field with specified polarization.
+    with_phase_ramp(tilt_pupil)
+        Return a new InputField with a linear phase ramp added to the phase.
 
     """
     amplitude_x: NDArray[Float]
@@ -109,27 +174,6 @@ class InputField:
     phase_y: NDArray[Float]
     polarization_x: NDArray[Complex]
     polarization_y: NDArray[Complex]
-
-    @staticmethod
-    def _gaussian_amplitude(
-        beam_center_pupil: tuple[float, float],
-        waist_pupil: float | tuple[float, float],
-        mesh_size: int
-    ) -> tuple[NDArray[Float], NDArray[Float]]:
-        """Calculate a Gaussian amplitude for the pupil field."""
-        if isinstance(waist_pupil, (int, float)):
-            waist_x = waist_y = waist_pupil
-        else:
-            waist_x, waist_y = waist_pupil
-
-        normed_coords = np.linspace(-1, 1, mesh_size)
-        x, y = np.meshgrid(normed_coords, normed_coords)
-        x0: float = beam_center_pupil[0]
-        y0: float = beam_center_pupil[1]
-        amplitude_x = np.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
-        amplitude_y = np.copy(amplitude_x)
-
-        return amplitude_x, amplitude_y
 
     @classmethod
     def gaussian_pupil(
@@ -160,7 +204,7 @@ class InputField:
 
         """
         polarization_x, polarization_y = polarization.arrays(mesh_size)
-        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
+        amplitude_x, amplitude_y = gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
         phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
         phase_y = np.zeros((mesh_size, mesh_size), dtype=Float)
@@ -213,7 +257,7 @@ class InputField:
 
         """
         polarization_x, polarization_y = polarization.arrays(mesh_size)
-        amplitude_x, amplitude_y = cls._gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
+        amplitude_x, amplitude_y = gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
         phase_x, phase_y = orientation.arrays(mesh_size, phase, phase_mask_center)
 
@@ -229,7 +273,7 @@ class InputField:
     @classmethod
     def uniform_pupil(cls, mesh_size: int, polarization: Polarization) -> InputField:
         polarization_x, polarization_y = polarization.arrays(mesh_size)
-            
+
         amplitude_x = np.ones((mesh_size, mesh_size), dtype=Float)
         amplitude_y = np.ones((mesh_size, mesh_size), dtype=Float)
         phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
@@ -242,4 +286,38 @@ class InputField:
             phase_y=phase_y,
             polarization_x=polarization_x,
             polarization_y=polarization_y,
+        )
+
+    def with_phase_ramp(self, tilt_pupil: tuple[float, float]) -> InputField:
+        """Return a new InputField with a linear phase ramp added to the phase.
+
+        Models a blazed-grating-style beam-steering element (e.g. a galvo mirror or
+        SLM tilt pattern) as an abstract phase tilt, composable onto any InputField
+        regardless of how it was constructed. Mapping this tilt to a physical beam
+        displacement requires a separate, system-specific calibration.
+
+        Parameters
+        ----------
+        tilt_pupil : tuple of float
+            Phase tilt in radians at the pupil edge (px=1, py=1) along the pupil's
+            x- and y-directions, i.e. (tilt_x, tilt_y). Any combination of tilt_x
+            and tilt_y is allowed, giving a ramp in any direction across the pupil
+            (not limited to 45 degrees) — e.g. (1.0, 0.0) steers along x, (0.0, 1.0)
+            along y, (1.0, 1.0) diagonally. The resulting ramp array is added to
+            both of InputField's phase_x and phase_y attributes (its two
+            polarization-channel phase arrays), since a physical steering element
+            deflects the whole beam rather than one Jones component selectively.
+
+        Returns
+        -------
+        InputField
+            A new instance with the ramp added to phase_x and phase_y. The
+            original InputField is not modified.
+
+        """
+        ramp = phase_ramp(tilt_pupil, self.phase_x.shape[0])
+        return replace(
+            self,
+            phase_x=self.phase_x + ramp,
+            phase_y=self.phase_y + ramp,
         )

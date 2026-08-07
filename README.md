@@ -152,6 +152,22 @@ HalfmoonPhase.MINUS_45
 HalfmoonPhase.PLUS_45
 ```
 
+#### Beam Steering with a Phase Ramp
+
+A linear phase ramp (blazed grating) can be composed onto any `InputField`, regardless of how it was constructed, to model beam-steering elements such as galvo mirrors or SLM tilt patterns:
+
+```python
+steered = halfmoon.with_phase_ramp(tilt_pupil=(0.5, 0.0))
+```
+
+`tilt_pupil` specifies the phase tilt in radians at the pupil edge (`px=1`/`py=1`) along the x- and y-directions, and may point in any direction, e.g. `(1.0, 0.0)` steers along x, `(0.0, 1.0)` along y, `(1.0, 1.0)` diagonally.
+
+See `scripts/displaced_gaussian.py` for a runnable example that steers a focused Gaussian beam with `tilt_pupil=(-2.0, 1.0)` and plots the resulting displacement (requires the `plot` extra):
+
+```console
+uv run displaced_gaussian
+```
+
 ### Pupil
 
 A `Pupil` instance is defined as follows:
@@ -236,6 +252,12 @@ The pupil mesh samples are always taken at the centers of their corresponding ce
 
 Unlike the pupil mesh, the origin of the coordinate system is sampled by the focal field mesh because of how the FFT works. It lies at pixel `L / 2`, where `L` is the linear square mesh size. The focal field mesh spacing is `dx = λ/(2·NA·2^padding_factor)` and total the FOV is `L * dx = mesh_size * λ/(2·NA)`, i.e. the FOV is independent of any padding applied before the FFT.
 
+### Example Scripts
+
+Command line scripts that illustrate the use of Just Focus may found in <src/leb/just_focus/scripts>. They are also available on the command line, i.e. `uv run gaussian`.
+
+Scripts require the `plot` set of optional dependencies. See [the installation instructions](#extras) for more details about how to install them.
+
 ## Development
 
 ### Set up the development environment
@@ -264,6 +286,25 @@ pytest
 - InFocus (MATLAB) <https://github.com/QF06/InFocus>
 - Debye Diffraction Code (MATLAB and Python) <https://github.com/jdmanton/debye_diffraction_code>
 - PyFocus <https://github.com/fcaprile/PyFocus>
+- PSF Generator (Java) <https://bigwww.epfl.ch/algorithms/psfgenerator/>
+
+### Is Just Focus for me?
+
+- If you want a fast PSF calculator that runs on the GPU, then use [psf-generator](https://github.com/Biomedical-Imaging-Group/psf_generator).
+- If you want a GUI and/or a Windows-installable executable, then use [PyFocus](https://github.com/fcaprile/PyFocus).
+- If you want a MATLAB tool, then use [InFocus](https://github.com/QF06/InFocus).
+- If you want a Java/ImageJ/Fiji/Icy tool, use [PSF Generator](https://bigwww.epfl.ch/algorithms/psfgenerator/).
+
+If you want 
+
+1. a Python package
+2. that computes vectorial focal fields
+2. with a simple API and
+3. a small number of dependencies,
+3. you do not care about computation speed or optimizations, and
+4. you want the physics clearly reflected in the code,
+
+then Just Focus might be for you.
 
 ## Resources
 
