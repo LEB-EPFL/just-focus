@@ -203,6 +203,12 @@ Zernike modes are specified by [Noll's sequential indices](https://en.wikipedia.
 
 Zernike polynomial evaluation is delegated to the [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX) library, which is not installed by default. Calling `with_zernike_modes` without it installed raises a `ZernipaxNotInstalledError`.
 
+See `scripts/aberrated_halfmoon.py` for a runnable example that adds Zernike aberrations to a halfmoon beam and plots the results (requires the `plot` and `zernike` extras):
+
+```console
+uv run aberrated_halfmoon
+```
+
 ### Pupil
 
 A `Pupil` instance is defined as follows:
