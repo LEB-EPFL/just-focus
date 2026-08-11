@@ -39,6 +39,13 @@ plot = [
     "matplotlib>=3.10.5",
     "pyside6>=6.9.1",
 ]
+zernike = [
+    "zernipax>=0.2.1",
+]
+zernike-gpu = [
+    "zernipax>=0.2.1",
+    "jax[cuda12]",
+]
 
 [project.scripts]
 gaussian = "leb.just_focus.scripts.gaussian:main"

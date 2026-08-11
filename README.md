@@ -41,6 +41,8 @@ pip install just-focus
 
 ### Extras
 
+#### plot
+
 Install additional dependencies for making plots:
 
 ```console
@@ -55,6 +57,26 @@ from leb.just_focus.plots import plot_inputs
 plot_inputs(inputs, pupil)
 
 ```
+
+#### zernike
+
+Install additional dependencies for adding Zernike polynomial phase aberrations to the pupil (see [Zernike Aberrations](#zernike-aberrations) below):
+
+```console
+pip install just-focus[zernike]
+```
+
+Zernike polynomial evalution is delegated to [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX).
+
+#### zernike-gpu
+
+If you have an NVIDIA GPU and want GPU-accelerated Zernike polynomial evaluation, install `zernike-gpu` instead, which pulls in a CUDA-enabled build of `jax`:
+
+```console
+pip install just-focus[zernike-gpu]
+```
+
+According to the [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX/blob/a893905d5c71903bf6f71f88613afc17b02e0cbd/zernipax/zernike.py#L215) authors, the GPU-accelerated version is not always faster and can be less precise than the CPU-accelerated version. 
 
 ## Use
 
@@ -165,6 +187,21 @@ See `scripts/displaced_gaussian.py` for a runnable example that steers a focused
 ```console
 uv run displaced_gaussian
 ```
+
+#### Zernike Aberrations
+
+A weighted sum of Zernike polynomials can be composed onto any `InputField` to model wavefront aberrations (e.g. optical system aberrations or an SLM correction pattern). This requires the `zernike` extra (see [Extras](#extras)):
+
+```python
+aberrated = halfmoon.with_zernike_modes(
+    noll_indices=[4, 11],
+    coefficients=[0.5, -0.2],
+)
+```
+
+Zernike modes are specified by [Noll's sequential indices](https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices). `coefficients` are in radians, and each is the weight of the corresponding Noll-normalized (unit RMS over the unit disk) Zernike polynomial added directly to `phase_x` and `phase_y`.
+
+Zernike polynomial evaluation is delegated to the [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX) library, which is not installed by default. Calling `with_zernike_modes` without it installed raises a `ZernipaxNotInstalledError`.
 
 ### Pupil
 
@@ -286,7 +323,7 @@ A [shell.nix](shell.nix) file is provided for creating reproducible development 
 nix-shell
 ```
 
-In general, you will not need this unless you are working on GPU-accelerated code.
+In general, you will not need this unless you are working on GPU-accelerated code on a remote NixOS machine.
 
 ## Other Packages to Compute Vectorial Focal Fields
 

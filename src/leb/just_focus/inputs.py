@@ -1,6 +1,7 @@
 """Input fields for the propagation algorithm."""
 
 from __future__ import annotations
+from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
@@ -8,6 +9,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from .dtypes import Complex, Float
+from .zernike import zernike_phase
 
 
 class Polarization(StrEnum):
@@ -166,6 +168,8 @@ class InputField:
         Create a uniform pupil field with specified polarization.
     with_phase_ramp(tilt_pupil)
         Return a new InputField with a linear phase ramp added to the phase.
+    with_zernike_modes(noll_indices, coefficients)
+        Return a new InputField with a Zernike phase aberration added to the phase.
 
     """
     amplitude_x: NDArray[Float]
@@ -320,4 +324,41 @@ class InputField:
             self,
             phase_x=self.phase_x + ramp,
             phase_y=self.phase_y + ramp,
+        )
+
+    def with_zernike_modes(
+        self,
+        noll_indices: int | Sequence[int],
+        coefficients: float | Sequence[float],
+    ) -> InputField:
+        """Return a new InputField with a Zernike phase aberration added to the phase.
+
+        Models a wavefront aberration (e.g. optical system aberrations or an SLM
+        correction pattern) as a weighted sum of Noll-normalized Zernike polynomials,
+        composable onto any InputField regardless of how it was constructed. Requires
+        the optional `zernipax` dependency; see the `zernike` extra and
+        `leb.just_focus.zernike` for details.
+
+        Parameters
+        ----------
+        noll_indices : int or sequence of int
+            Noll's sequential index (see
+            https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices)
+            of each Zernike mode to add.
+        coefficients : float or sequence of float
+            Coefficient in radians for each mode listed in `noll_indices`. Must have
+            the same number of elements as `noll_indices`.
+
+        Returns
+        -------
+        InputField
+            A new instance with the Zernike phase added to phase_x and phase_y. The
+            original InputField is not modified.
+
+        """
+        phase = zernike_phase(noll_indices, coefficients, self.phase_x.shape[0])
+        return replace(
+            self,
+            phase_x=self.phase_x + phase,
+            phase_y=self.phase_y + phase,
         )
