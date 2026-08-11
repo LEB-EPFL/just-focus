@@ -278,6 +278,16 @@ Just run `pytest` from the project's root directory:
 pytest
 ```
 
+### shell.nix
+
+A [shell.nix](shell.nix) file is provided for creating reproducible development environments on remote, GPU-enabled machines running [NixOS](https://nixos.org/). To enter the development shell environment, run the following console command:
+
+```console
+nix-shell
+```
+
+In general, you will not need this unless you are working on GPU-accelerated code.
+
 ## Other Packages to Compute Vectorial Focal Fields
 
 - PSF-Generator (Python) <https://github.com/Biomedical-Imaging-Group/psf_generator>
