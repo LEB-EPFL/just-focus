@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/LEB-EPFL/just-focus/compare/v1.0.0...v1.1.0) (2026-08-11)
+
+
+### Features
+
+* Add a script demonstrating adding aberrations to a halfmoon beam ([bc43392](https://github.com/LEB-EPFL/just-focus/commit/bc43392ba1a10dfae635fd80121dc9d19fb67b17))
+* Zernike polynomial-based pupil phase perturbations ([#77](https://github.com/LEB-EPFL/just-focus/issues/77)) ([5f231a8](https://github.com/LEB-EPFL/just-focus/commit/5f231a8883c857df19afb6483361f70ca920f431))
+
+
+### Documentation
+
+* Remove import numpy from Quickstart ([f9e6555](https://github.com/LEB-EPFL/just-focus/commit/f9e65556c27126156203cb5d1df473ce6a2194fc))
+
 ## [1.0.0](https://github.com/LEB-EPFL/just-focus/compare/v0.3.4...v1.0.0) (2026-08-07)
 
 
