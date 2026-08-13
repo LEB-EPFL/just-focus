@@ -1,14 +1,13 @@
 """Input fields for the propagation algorithm."""
 
 from __future__ import annotations
+import math
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
-import numpy as np
-from numpy.typing import NDArray
-
-from .dtypes import Complex, Float
+from .backend import be
+from .dtypes import Array, complex_dtype, float_dtype
 from .zernike import zernike_phase
 
 
@@ -18,23 +17,23 @@ class Polarization(StrEnum):
     CIRCULAR_LEFT = "circular_left"
     CIRCULAR_RIGHT = "circular_right"
 
-    def arrays(self, mesh_size: int) -> tuple[NDArray[Complex], NDArray[Complex]]:
+    def arrays(self, mesh_size: int) -> tuple[Array, Array]:
         match self:
             case Polarization.LINEAR_X:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex)
-                polarization_y = np.zeros((mesh_size, mesh_size), dtype=Complex)
+                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
+                polarization_y = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
             case Polarization.LINEAR_Y:
-                polarization_x = np.zeros((mesh_size, mesh_size), dtype=Complex)
-                polarization_y = np.ones((mesh_size, mesh_size), dtype=Complex)
+                polarization_x = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
+                polarization_y = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
             case Polarization.CIRCULAR_LEFT:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-                polarization_y = 1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_y = 1j * be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
             case Polarization.CIRCULAR_RIGHT:
-                polarization_x = np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
-                polarization_y = -1j * np.ones((mesh_size, mesh_size), dtype=Complex) / np.sqrt(2)
+                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_y = -1j * be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
             case _:
-                raise ValueError(f"Unsupported polarization: {polarization}")
-        
+                raise ValueError(f"Unsupported polarization: {self}")
+
         return polarization_x, polarization_y
 
 
@@ -47,27 +46,31 @@ class HalfmoonPhase(StrEnum):
     def arrays(
         self,
         mesh_size: int,
-        phase: float = np.pi,
+        phase: float = math.pi,
         phase_mask_center: tuple[float, float] = (0.0, 0.0)
-    ) -> tuple[NDArray[Float], NDArray[Float]]:
-        normed_coords = np.linspace(-1, 1, mesh_size)
-        x, y = np.meshgrid(normed_coords, normed_coords)
+    ) -> tuple[Array, Array]:
+        normed_coords = be.linspace(-1, 1, mesh_size, dtype=float_dtype())
+        x, y = be.meshgrid(normed_coords, normed_coords, indexing='xy')
         x0, y0 = phase_mask_center
-        x -= x0
-        y -= y0
+        x = x - x0
+        y = y - y0
 
-        phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
+        phase_val = be.asarray(phase, dtype=float_dtype())
+        zero_val = be.asarray(0.0, dtype=float_dtype())
         match self:
             case HalfmoonPhase.HORIZONTAL:
-                phase_x[x >= 0] = phase
+                mask = x >= 0
             case HalfmoonPhase.VERTICAL:
-                phase_x[y >= 0] = phase
+                mask = y >= 0
             case HalfmoonPhase.PLUS_45:
-                phase_x[(x + y) >= 0] = phase
+                mask = (x + y) >= 0
             case HalfmoonPhase.MINUS_45:
-                phase_x[(x - y) >= 0] = phase
+                mask = (x - y) >= 0
+            case _:
+                raise ValueError(f"Unsupported halfmoon orientation: {self}")
 
-        phase_y = phase_x.copy()
+        phase_x = be.where(mask, phase_val, zero_val)
+        phase_y = be.copy(phase_x)
 
         return phase_x, phase_y
 
@@ -76,7 +79,7 @@ def gaussian_amplitude(
     beam_center_pupil: tuple[float, float],
     waist_pupil: float | tuple[float, float],
     mesh_size: int
-) -> tuple[NDArray[Float], NDArray[Float]]:
+) -> tuple[Array, Array]:
     """Compute a Gaussian amplitude for the pupil field.
 
     Parameters
@@ -91,7 +94,7 @@ def gaussian_amplitude(
 
     Returns
     -------
-    tuple of NDArray[Float]
+    tuple of Array
         The Gaussian amplitude for the x- and y-directions, respectively.
 
     """
@@ -100,17 +103,17 @@ def gaussian_amplitude(
     else:
         waist_x, waist_y = waist_pupil
 
-    normed_coords = np.linspace(-1, 1, mesh_size)
-    x, y = np.meshgrid(normed_coords, normed_coords)
+    normed_coords = be.linspace(-1, 1, mesh_size, dtype=float_dtype())
+    x, y = be.meshgrid(normed_coords, normed_coords, indexing='xy')
     x0: float = beam_center_pupil[0]
     y0: float = beam_center_pupil[1]
-    amplitude_x = np.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
-    amplitude_y = np.copy(amplitude_x)
+    amplitude_x = be.exp(-(x - x0)**2 / waist_x**2 - (y - y0)**2 / waist_y**2)
+    amplitude_y = be.copy(amplitude_x)
 
     return amplitude_x, amplitude_y
 
 
-def phase_ramp(tilt_pupil: tuple[float, float], mesh_size: int) -> NDArray[Float]:
+def phase_ramp(tilt_pupil: tuple[float, float], mesh_size: int) -> Array:
     """Compute a linear phase ramp (blazed grating) across the pupil.
 
     Parameters
@@ -123,15 +126,15 @@ def phase_ramp(tilt_pupil: tuple[float, float], mesh_size: int) -> NDArray[Float
 
     Returns
     -------
-    NDArray[Float]
+    Array
         The phase ramp evaluated on the normalized pupil mesh, i.e.
         phase(px, py) = tilt_x * px + tilt_y * py.
 
     """
     tilt_x, tilt_y = tilt_pupil
-    normed_coords = np.linspace(-1, 1, mesh_size)
-    px, py = np.meshgrid(normed_coords, normed_coords)
-    return (tilt_x * px + tilt_y * py).astype(Float)
+    normed_coords = be.linspace(-1, 1, mesh_size, dtype=float_dtype())
+    px, py = be.meshgrid(normed_coords, normed_coords, indexing='xy')
+    return be.astype(tilt_x * px + tilt_y * py, float_dtype())
 
 
 @dataclass
@@ -142,20 +145,20 @@ class InputField:
     elements for the x- and y-directions. In many common cases, the amplitudes and
     phases will be the same in both x- and y-directions and only the polarization will
     differ.
-    
+
     Attributes
     ----------
-    amplitude_x : NDArray[Float]
+    amplitude_x : Array
         The amplitude of the field for the x-direction.
-    amplitude_y : NDArray[Float]
+    amplitude_y : Array
         The amplitude of the field for the y-direction.
-    phase_x : NDArray[Float]
+    phase_x : Array
         The phase of the field for the x-direction.
-    phase_y : NDArray[Float]
+    phase_y : Array
         The phase of the field for the y-direction.
-    polarization_x : NDArray[Complex]
+    polarization_x : Array
         The polarization state of the field for the x-direction.
-    polarization_y : NDArray[Complex]
+    polarization_y : Array
         The polarization state of the field for the y-direction.
 
     Methods
@@ -172,12 +175,12 @@ class InputField:
         Return a new InputField with a Zernike phase aberration added to the phase.
 
     """
-    amplitude_x: NDArray[Float]
-    amplitude_y: NDArray[Float]
-    phase_x: NDArray[Float]
-    phase_y: NDArray[Float]
-    polarization_x: NDArray[Complex]
-    polarization_y: NDArray[Complex]
+    amplitude_x: Array
+    amplitude_y: Array
+    phase_x: Array
+    phase_y: Array
+    polarization_x: Array
+    polarization_y: Array
 
     @classmethod
     def gaussian_pupil(
@@ -210,8 +213,8 @@ class InputField:
         polarization_x, polarization_y = polarization.arrays(mesh_size)
         amplitude_x, amplitude_y = gaussian_amplitude(beam_center_pupil, waist_pupil, mesh_size)
 
-        phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
-        phase_y = np.zeros((mesh_size, mesh_size), dtype=Float)
+        phase_x = be.zeros((mesh_size, mesh_size), dtype=float_dtype())
+        phase_y = be.zeros((mesh_size, mesh_size), dtype=float_dtype())
 
         return InputField(
             amplitude_x=amplitude_x,
@@ -221,7 +224,7 @@ class InputField:
             polarization_x=polarization_x,
             polarization_y=polarization_y,
         )
-    
+
     @classmethod
     def gaussian_halfmoon_pupil(
         cls,
@@ -230,11 +233,11 @@ class InputField:
         mesh_size: int,
         polarization:Polarization,
         orientation: HalfmoonPhase = HalfmoonPhase.HORIZONTAL,
-        phase: float = np.pi,
+        phase: float = math.pi,
         phase_mask_center: tuple[float, float] = (0.0, 0.0),
     ) -> InputField:
         """Create a halfmoon pupil field with a Gaussian beam amplitude.
-        
+
         Parameters
         ----------
         beam_center_pupil : tuple of float
@@ -249,7 +252,7 @@ class InputField:
         orientation : HalfmoonPhase, optional
             The orientation of the halfmoon phase mask. Default is HalfmoonPhase.HORIZONTAL.
         phase : float, optional
-            The phase shift applied to the halfmoon mask. Default is np.pi.
+            The phase shift applied to the halfmoon mask. Default is pi.
         phase_mask_center : tuple of float, optional
             The center of the phase mask in normalized pupil coordinates (x, y). Default is
             (0.0, 0.0).
@@ -278,10 +281,10 @@ class InputField:
     def uniform_pupil(cls, mesh_size: int, polarization: Polarization) -> InputField:
         polarization_x, polarization_y = polarization.arrays(mesh_size)
 
-        amplitude_x = np.ones((mesh_size, mesh_size), dtype=Float)
-        amplitude_y = np.ones((mesh_size, mesh_size), dtype=Float)
-        phase_x = np.zeros((mesh_size, mesh_size), dtype=Float)
-        phase_y = np.zeros((mesh_size, mesh_size), dtype=Float)
+        amplitude_x = be.ones((mesh_size, mesh_size), dtype=float_dtype())
+        amplitude_y = be.ones((mesh_size, mesh_size), dtype=float_dtype())
+        phase_x = be.zeros((mesh_size, mesh_size), dtype=float_dtype())
+        phase_y = be.zeros((mesh_size, mesh_size), dtype=float_dtype())
 
         return InputField(
             amplitude_x=amplitude_x,
@@ -339,6 +342,10 @@ class InputField:
         the optional `zernipax` dependency; see the `zernike` extra and
         `leb.just_focus.zernike` for details.
 
+        Under the PyTorch backend, the Zernike phase itself is still computed via
+        `zernipax` (NumPy/JAX) and then converted to a tensor at this boundary — it
+        does not carry autograd history back through the Zernike evaluation.
+
         Parameters
         ----------
         noll_indices : int or sequence of int
@@ -357,6 +364,7 @@ class InputField:
 
         """
         phase = zernike_phase(noll_indices, coefficients, self.phase_x.shape[0])
+        phase = be.asarray(phase, dtype=float_dtype())
         return replace(
             self,
             phase_x=self.phase_x + phase,

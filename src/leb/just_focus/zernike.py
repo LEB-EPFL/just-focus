@@ -18,8 +18,6 @@ from collections.abc import Sequence
 import numpy as np
 from numpy.typing import NDArray
 
-from .dtypes import Float
-
 try:
     from zernipax.zernike import fourier, zernike_radial_cpu
 except ImportError:
@@ -76,7 +74,7 @@ def _noll_to_nm(j: int) -> tuple[int, int]:
     return n, m
 
 
-def zernike_pupil_coordinates(mesh_size: int) -> tuple[NDArray[Float], NDArray[Float]]:
+def zernike_pupil_coordinates(mesh_size: int) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Compute polar pupil coordinates on the same normalized mesh used elsewhere.
 
     Parameters
@@ -86,7 +84,7 @@ def zernike_pupil_coordinates(mesh_size: int) -> tuple[NDArray[Float], NDArray[F
 
     Returns
     -------
-    tuple of NDArray[Float]
+    tuple of NDArray[np.float64]
         The radial coordinate rho and azimuthal coordinate theta (radians), evaluated
         on the normalized pupil mesh where the pupil edge is at rho = 1.
 
@@ -95,14 +93,14 @@ def zernike_pupil_coordinates(mesh_size: int) -> tuple[NDArray[Float], NDArray[F
     px, py = np.meshgrid(normed_coords, normed_coords)
     rho = np.sqrt(px**2 + py**2)
     theta = np.arctan2(py, px)
-    return rho.astype(Float), theta.astype(Float)
+    return rho.astype(np.float64), theta.astype(np.float64)
 
 
 def zernike_phase(
     noll_indices: int | Sequence[int],
     coefficients: float | Sequence[float],
     mesh_size: int,
-) -> NDArray[Float]:
+) -> NDArray[np.float64]:
     """Compute a pupil phase from a weighted sum of Noll-normalized Zernike polynomials.
 
     Requires the `zernike` extra.
@@ -121,7 +119,7 @@ def zernike_phase(
 
     Returns
     -------
-    NDArray[Float]
+    NDArray[np.float64]
         The Zernike phase evaluated on the normalized pupil mesh.
 
     References
@@ -154,4 +152,4 @@ def zernike_phase(
     normalization = np.where(m_vals == 0, np.sqrt(n_vals + 1), np.sqrt(2 * (n_vals + 1)))
 
     phase_flat = (radial * angular * normalization) @ coefficients_arr
-    return phase_flat.reshape(mesh_size, mesh_size).astype(Float)
+    return phase_flat.reshape(mesh_size, mesh_size).astype(np.float64)

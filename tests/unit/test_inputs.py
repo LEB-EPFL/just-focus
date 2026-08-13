@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from leb.just_focus import Float, HalfmoonPhase, InputField, Polarization, gaussian_amplitude, phase_ramp
+from leb.just_focus import HalfmoonPhase, InputField, Polarization, float_dtype, gaussian_amplitude, phase_ramp
 
 
 def test_gaussian_amplitude_shape_and_dtype():
@@ -17,7 +17,7 @@ def test_phase_ramp_shape_and_dtype():
     ramp = phase_ramp((0.5, -0.25), mesh_size)
 
     assert ramp.shape == (mesh_size, mesh_size)
-    assert ramp.dtype == Float
+    assert ramp.dtype == float_dtype()
 
 
 def test_phase_ramp_zero_at_center():
@@ -74,5 +74,5 @@ def test_with_phase_ramp_dtype_preserved():
     mesh_size = 32
     field = InputField.uniform_pupil(mesh_size, Polarization.LINEAR_X).with_phase_ramp((1.0, 1.0))
 
-    assert field.phase_x.dtype == Float
-    assert field.phase_y.dtype == Float
+    assert field.phase_x.dtype == float_dtype()
+    assert field.phase_y.dtype == float_dtype()

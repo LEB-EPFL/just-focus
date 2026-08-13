@@ -1,22 +1,21 @@
 """Electromagnetic fields in the focus of a high NA microscope objective."""
+from __future__ import annotations
 from dataclasses import dataclass
 
-import numpy as np
-from numpy.typing import NDArray
-
-from .dtypes import Complex, Float
+from .backend import be
+from .dtypes import Array
 
 
 @dataclass(frozen=True)
 class FocalField:
-    field_x: NDArray[Complex]
-    field_y: NDArray[Complex]
-    field_z: NDArray[Complex]
-    x_um: NDArray[Float]
-    y_um: NDArray[Float]
+    field_x: Array
+    field_y: Array
+    field_z: Array
+    x_um: Array
+    y_um: Array
 
-    def intensity(self, normalize: bool = True) -> NDArray[Float]:
-        I = np.abs(self.field_x)**2 + np.abs(self.field_y)**2 + np.abs(self.field_z)**2
+    def intensity(self, normalize: bool = True) -> Array:
+        I = be.abs(self.field_x)**2 + be.abs(self.field_y)**2 + be.abs(self.field_z)**2
         if normalize:
-            return I / np.max(I)
+            return I / be.max(I)
         return I

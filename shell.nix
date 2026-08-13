@@ -35,6 +35,7 @@ let
           matplotlib
           mpmath
           numpy
+          torch
         ];
 
         pythonImportsCheck = [ "zernipax" ];
