@@ -58,6 +58,14 @@ plot_inputs(inputs, pupil)
 
 ```
 
+#### torch
+
+Install additional dependencies to run the simulation pipeline on PyTorch tensors instead of NumPy arrays (see [Backends](#backends) below):
+
+```console
+pip install just-focus[torch]
+```
+
 #### zernike
 
 Install additional dependencies for adding Zernike polynomial phase aberrations to the pupil (see [Zernike Aberrations](#zernike-aberrations) below):
@@ -105,7 +113,7 @@ input = InputField(
 )
 ```
 
-All parameters should be 2D square arrays whose shape elements are powers of 2. The amplitude and phase arrays are of dtype `np.float64`, and the polarization arrays are of dtype `np.complex128`.
+All parameters should be 2D square arrays whose shape elements are powers of 2. The amplitude and phase arrays hold real values and the polarization arrays hold complex values, using the dtype of the active backend and precision (`np.float64`/`np.complex128` by default; see [Backends](#backends)).
 
 These inputs follow the implementation laid out by [Herrera and Quinto-Su](https://doi.org/10.48550/arXiv.2211.06725). Technically, they overspecify the field at the pupil in many "normal" cases. They are all required, however, to model a beam-shaping experiment where the x- and y-components of the field may be independently modulated in amplitude, phase, and polarization, such as setups with two SLMs and polarizing elements on two separate beam paths.
 
@@ -125,6 +133,8 @@ Alternatively, the relative phases may be determined by setting `phase_x` and `p
 Some factory methods exist to compute commonly encountered input fields:
 
 ```python
+import math
+
 from leb.just_focus import HalfmoonPhase, InputField, Polarization
 
 mesh_size = 64
@@ -142,7 +152,7 @@ halfmoon = InputField.gaussian_halfmoon_pupil(
     mesh_size=mesh_size,
     polarization=Polarization.LINEAR_Y,
     orientation=HalfmoonPhase.MINUS_45,
-    phase=np.pi,
+    phase=math.pi,
     phase_mask_center=(0.0, 0.0),
 )
 
@@ -259,24 +269,49 @@ where `z_um = 0` corresponds to the focal plane of the objective and`inputs` is 
 `Pupil.propagate` returns a `FocalField` instance which is defined as follows:
 
 ```python
+from dataclasses import dataclass
+
+from leb.just_focus import Array
+from leb.just_focus.backend import be  # internal; not part of the public API
+
 @dataclass(frozen=True)
 class FocalField:
-    field_x: NDArray[Complex]
-    field_y: NDArray[Complex]
-    field_z: NDArray[Complex]
-    x_um: NDArray[Float]
-    y_um: NDArray[Float]
+    field_x: Array
+    field_y: Array
+    field_z: Array
+    x_um: Array
+    y_um: Array
 
-    def intensity(self, normalize: bool = True) -> NDArray[Float]:
-        I = np.abs(self.field_x)**2 + np.abs(self.field_y)**2 + np.abs(self.field_z)**2
+    def intensity(self, normalize: bool = True) -> Array:
+        I = be.abs(self.field_x)**2 + be.abs(self.field_y)**2 + be.abs(self.field_z)**2
         if normalize:
-            return I / np.max(I)
+            return I / be.max(I)
         return I
 ```
 
 It has five parameters: three, 2D complex arrays representing the field in each direction and two, 1D arrays representing the x- and y-coordinates in the focal region.
 
 In addition, there is an `intenstiy` helper method that computes the intensity from the fields.
+
+### Backends
+
+Just Focus can run its `InputField` → `Pupil` → `FocalField` pipeline on either NumPy arrays (the default, no extra dependencies) or PyTorch tensors (requires the [torch](#torch) extra). The active backend is process-wide state and selected with `set_backend`:
+
+```python
+from leb.just_focus import set_backend, InputField, Polarization, Pupil
+
+set_backend("torch")  # or "numpy" (the default); see leb.just_focus.Backend
+
+pupil = Pupil(mesh_size=64)
+inputs = InputField.uniform_pupil(64, Polarization.LINEAR_X)
+result = pupil.propagate(0.0, inputs)  # result.field_x etc. are now torch.Tensor
+```
+
+`set_backend` also takes a `precision` argument (`"float32"` or `"float64"`, default `"float64"`) that applies independently of the backend. `"float32"` implies `"complex64"`, and `"float64"` implies `"complex128"` when arrays are complex.
+
+Calling `set_backend` only affects `Pupil`/`InputField` instances built *afterward*. Mixing a NumPy-built `Pupil` with a PyTorch-built `InputField` in the same `propagate` call will fail at the first elementwise operation that combines an `ndarray` with a `Tensor`.
+
+Zernike phase aberrations (`InputField.with_zernike_modes`) are always computed via the optional `zernipax`/JAX dependency and converted to the active backend afterward; under the torch backend this conversion means the Zernike phase does not carry PyTorch autograd history.
 
 ### Coordinate Reference Systems and Meshes
 
@@ -349,11 +384,11 @@ In general, you will not need this unless you are working on GPU-accelerated cod
 If you want 
 
 1. a Python package
-2. that computes vectorial focal fields
-2. with a simple API and
-3. a small number of dependencies,
-3. you do not care about computation speed or optimizations, and
-4. you want the physics clearly reflected in the code,
+1. that computes vectorial focal fields
+1. with a simple API and
+1. a small number of dependencies,
+1. that supports both NumPy and PyTorch Tensor arrays, and
+1. you want the physics clearly reflected in the code,
 
 then Just Focus might be for you.
 

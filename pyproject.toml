@@ -46,6 +46,9 @@ zernike-gpu = [
     "zernipax>=0.2.1",
     "jax[cuda12]",
 ]
+torch = [
+    "torch>=2.2",
+]
 
 [project.scripts]
 gaussian = "leb.just_focus.scripts.gaussian:main"

@@ -1,6 +1,6 @@
 import numpy as np
 
-from leb.just_focus import Float, FocalField
+from leb.just_focus import FocalField, float_dtype
 
 
 def test_focal_field_intensity_return_type_is_float():
@@ -11,4 +11,4 @@ def test_focal_field_intensity_return_type_is_float():
     focal_field = FocalField(field_x, field_y, field_z, x_um, y_um)
     intensity = focal_field.intensity()
 
-    assert intensity.dtype == Float
+    assert intensity.dtype == float_dtype()

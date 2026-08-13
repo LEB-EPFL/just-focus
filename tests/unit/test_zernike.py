@@ -3,7 +3,7 @@ import importlib.util
 import numpy as np
 import pytest
 
-from leb.just_focus import Float, InputField, Polarization
+from leb.just_focus import InputField, Polarization
 from leb.just_focus.zernike import ZernipaxNotInstalledError, _noll_to_nm, zernike_phase
 
 HAS_ZERNIPAX = importlib.util.find_spec("zernipax") is not None
@@ -75,7 +75,7 @@ def test_zernike_phase_shape_and_dtype():
     phase = zernike_phase(noll_indices=[4, 11], coefficients=[0.5, -0.25], mesh_size=mesh_size)
 
     assert phase.shape == (mesh_size, mesh_size)
-    assert phase.dtype == Float
+    assert phase.dtype == np.float64
 
 
 @pytest.mark.skipif(not HAS_ZERNIPAX, reason="requires the optional zernipax dependency")
