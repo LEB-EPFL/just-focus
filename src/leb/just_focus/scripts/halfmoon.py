@@ -27,7 +27,7 @@ def main(plot=True) -> None:
         phase_mask_center=(0.0, 0.0),
     )
 
-    results = pupil.propgate(0.0, inputs, padding_factor=4)
+    results = pupil.propagate(0.0, inputs, padding_factor=4)
 
     _, axs = plt.subplots(2, 4, figsize=(12, 6))
     axs[0, 0].imshow(

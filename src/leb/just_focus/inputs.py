@@ -8,7 +8,7 @@ from enum import StrEnum
 
 from .backend import be
 from .dtypes import Array, complex_dtype, float_dtype
-from .zernike import zernike_phase
+from .zernike import _zernike_basis
 
 
 class Polarization(StrEnum):
@@ -332,7 +332,7 @@ class InputField:
     def with_zernike_modes(
         self,
         noll_indices: int | Sequence[int],
-        coefficients: float | Sequence[float],
+        coefficients: float | Sequence[float] | Array,
     ) -> InputField:
         """Return a new InputField with a Zernike phase aberration added to the phase.
 
@@ -342,9 +342,13 @@ class InputField:
         the optional `zernipax` dependency; see the `zernike` extra and
         `leb.just_focus.zernike` for details.
 
-        Under the PyTorch backend, the Zernike phase itself is still computed via
-        `zernipax` (NumPy/JAX) and then converted to a tensor at this boundary — it
-        does not carry autograd history back through the Zernike evaluation.
+        The mode basis (fixed once `noll_indices` and the mesh size are known) is
+        still built via `zernipax` (NumPy/JAX) and cached; it carries no autograd
+        history. The combination with `coefficients` happens natively in the active
+        backend, though, so under the PyTorch backend a `coefficients` tensor with
+        `requires_grad=True` (e.g. a Pyro latent site) keeps its autograd graph
+        through this call, i.e. gradients flow into the coefficients, just not through
+        the basis construction itself.
 
         Parameters
         ----------
@@ -352,9 +356,11 @@ class InputField:
             Noll's sequential index (see
             https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices)
             of each Zernike mode to add.
-        coefficients : float or sequence of float
+        coefficients : float, sequence of float, or Array
             Coefficient in radians for each mode listed in `noll_indices`. Must have
-            the same number of elements as `noll_indices`.
+            the same number of elements as `noll_indices`. Under the PyTorch backend,
+            may be a tensor (e.g. `requires_grad=True`) whose autograd graph should
+            be preserved.
 
         Returns
         -------
@@ -363,8 +369,17 @@ class InputField:
             original InputField is not modified.
 
         """
-        phase = zernike_phase(noll_indices, coefficients, self.phase_x.shape[0])
-        phase = be.asarray(phase, dtype=float_dtype())
+        mesh_size = self.phase_x.shape[0]
+        basis = _zernike_basis(noll_indices, mesh_size)
+        coefficients_backend = be.atleast_1d(be.asarray(coefficients, dtype=float_dtype()))
+        if basis.shape[1] != coefficients_backend.shape[0]:
+            raise ValueError(
+                "noll_indices and coefficients must have the same number of elements, "
+                f"got {basis.shape[1]} and {coefficients_backend.shape[0]}."
+            )
+
+        basis_backend = be.asarray(basis, dtype=float_dtype())
+        phase = (basis_backend @ coefficients_backend).reshape(mesh_size, mesh_size)
         return replace(
             self,
             phase_x=self.phase_x + phase,

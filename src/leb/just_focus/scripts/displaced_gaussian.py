@@ -26,7 +26,7 @@ def main(plot=True) -> None:
         polarization=Polarization.LINEAR_Y,
     ).with_phase_ramp(tilt_pupil)
 
-    results = pupil.propgate(0.0, inputs, padding_factor=4)
+    results = pupil.propagate(0.0, inputs, padding_factor=4)
 
     _, axs = plt.subplots(3, 2, figsize=(8, 10))
     plt.suptitle(f"tilt_pupil = {tilt_pupil}")

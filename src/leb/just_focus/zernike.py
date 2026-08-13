@@ -1,19 +1,21 @@
 """Zernike polynomial phase perturbations for the pupil, indexed by Noll's indices.
 
-The public API takes only Noll's sequential indices (see `zernike_phase`), following
-the definition at https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices
-(equivalently, OEIS A176988: https://oeis.org/A176988).
+The public API takes only Noll's sequential indices (see `InputField.with_zernike_modes`),
+following the definition at
+https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices (equivalently,
+OEIS A176988: https://oeis.org/A176988).
 
 Zernike polynomial evaluation is delegated to the optional `zernipax
 <https://github.com/PlasmaControl/ZERNIPAX>`_ dependency, which is not installed by
 default. Install it with the `zernike` extra, e.g. `pip install just-focus[zernike]`,
-to use `zernike_phase` or `InputField.with_zernike_modes`.
+to use `InputField.with_zernike_modes`.
 
 """
 
 from __future__ import annotations
 
 from collections.abc import Sequence
+from functools import lru_cache
 
 import numpy as np
 from numpy.typing import NDArray
@@ -96,49 +98,13 @@ def zernike_pupil_coordinates(mesh_size: int) -> tuple[NDArray[np.float64], NDAr
     return rho.astype(np.float64), theta.astype(np.float64)
 
 
-def zernike_phase(
-    noll_indices: int | Sequence[int],
-    coefficients: float | Sequence[float],
-    mesh_size: int,
-) -> NDArray[np.float64]:
-    """Compute a pupil phase from a weighted sum of Noll-normalized Zernike polynomials.
-
-    Requires the `zernike` extra.
-
-    Parameters
-    ----------
-    noll_indices : int or sequence of int
-        Noll's sequential index (see [1]_) of each Zernike mode.
-    coefficients : float or sequence of float
-        Coefficient in radians for each mode listed in `noll_indices`, i.e. the
-        weight of the corresponding Noll-normalized (unit RMS over the unit disk)
-        Zernike polynomial in the phase sum. Must have the same number of elements
-        as `noll_indices`.
-    mesh_size : int
-        The size of the mesh grid for the pupil field.
-
-    Returns
-    -------
-    NDArray[np.float64]
-        The Zernike phase evaluated on the normalized pupil mesh.
-
-    References
-    ----------
-    .. [1] https://en.wikipedia.org/wiki/Zernike_polynomials#Noll's_sequential_indices
-
-    """
+@lru_cache(maxsize=32)
+def _zernike_basis_cached(noll_indices: tuple[int, ...], mesh_size: int) -> NDArray[np.float64]:
+    """Cache key-driven implementation backing `_zernike_basis`; see that function."""
     if zernike_radial_cpu is None or fourier is None:
         raise ZernipaxNotInstalledError()
 
-    noll_indices_arr = np.atleast_1d(np.asarray(noll_indices, dtype=int))
-    coefficients_arr = np.atleast_1d(np.asarray(coefficients, dtype=float))
-    if noll_indices_arr.shape != coefficients_arr.shape:
-        raise ValueError(
-            "noll_indices and coefficients must have the same number of elements, "
-            f"got {noll_indices_arr.size} and {coefficients_arr.size}."
-        )
-
-    nm = np.array([_noll_to_nm(int(j)) for j in noll_indices_arr])
+    nm = np.array([_noll_to_nm(j) for j in noll_indices])
     n_vals, m_vals = nm[:, 0], nm[:, 1]
 
     rho, theta = zernike_pupil_coordinates(mesh_size)
@@ -151,5 +117,29 @@ def zernike_phase(
     # Noll normalization: unit RMS over the unit disk.
     normalization = np.where(m_vals == 0, np.sqrt(n_vals + 1), np.sqrt(2 * (n_vals + 1)))
 
-    phase_flat = (radial * angular * normalization) @ coefficients_arr
-    return phase_flat.reshape(mesh_size, mesh_size).astype(np.float64)
+    basis = (radial * angular * normalization).astype(np.float64)
+    basis.setflags(write=False)  # shared across callers via the lru_cache
+    return basis
+
+
+def _zernike_basis(noll_indices: int | Sequence[int], mesh_size: int) -> NDArray[np.float64]:
+    """Compute the fixed basis matrix for a set of Noll-normalized Zernike modes.
+
+    This is the mode-geometry-dependent (and expensive, `zernipax`-backed) half of
+    `InputField.with_zernike_modes`, split out so it can be cached and combined with
+    coefficients separately (e.g. natively in the active array backend, so gradients
+    can flow into the coefficients without differentiating through `zernipax`
+    itself). Results are cached per `(noll_indices, mesh_size)`, since the basis
+    does not depend on the coefficients and is safe to reuse across calls. Not part
+    of the public API: callers only ever need `InputField.with_zernike_modes`.
+
+    Returns a basis matrix of shape `(mesh_size**2, len(noll_indices))`, where
+    column k is Noll-normalized Zernike mode `noll_indices[k]` flattened row-major
+    over the normalized pupil mesh (matching `zernike_pupil_coordinates`). Each
+    call returns an independent, writable copy — the underlying cache entry itself
+    is never exposed, so mutating the result or converting it to another array
+    backend (e.g. `torch.as_tensor`) cannot corrupt the cache.
+
+    """
+    noll_tuple = tuple(int(j) for j in np.atleast_1d(np.asarray(noll_indices, dtype=int)))
+    return _zernike_basis_cached(noll_tuple, mesh_size).copy()

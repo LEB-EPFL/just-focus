@@ -42,10 +42,6 @@ plot = [
 zernike = [
     "zernipax>=0.2.1",
 ]
-zernike-gpu = [
-    "zernipax>=0.2.1",
-    "jax[cuda12]",
-]
 torch = [
     "torch>=2.2",
 ]

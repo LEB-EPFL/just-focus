@@ -23,7 +23,7 @@ def main(plot=True) -> None:
         polarization=Polarization.LINEAR_Y,
     )
 
-    results = pupil.propgate(0.0, inputs, padding_factor=4)
+    results = pupil.propagate(0.0, inputs, padding_factor=4)
 
     _, axs = plt.subplots(1, 3, figsize=(12, 6))
     axs[0].imshow(

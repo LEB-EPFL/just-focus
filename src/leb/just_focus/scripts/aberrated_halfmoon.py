@@ -34,7 +34,7 @@ def main(plot=True) -> None:
         coefficients=np.random.uniform(-0.1, 0.1, size=21).tolist(),
     )
 
-    results = pupil.propgate(0.0, inputs, padding_factor=4)
+    results = pupil.propagate(0.0, inputs, padding_factor=4)
 
     # Zero out input values outside the pupil aperture before plotting; Zernike
     # polynomials are only defined on the unit disk.
