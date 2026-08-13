@@ -36,7 +36,7 @@ def _load_golden(name: str) -> dict[str, np.ndarray]:
 
 def _run_case(name: str) -> dict[str, np.ndarray]:
     case = build_case(name)
-    result = case.pupil.propgate(case.z_um, case.inputs, padding_factor=PADDING_FACTOR)
+    result = case.pupil.propagate(case.z_um, case.inputs, padding_factor=PADDING_FACTOR)
     return {
         "field_x": be.to_numpy(result.field_x),
         "field_y": be.to_numpy(result.field_y),

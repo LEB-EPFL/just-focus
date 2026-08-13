@@ -10,4 +10,4 @@ from .dtypes import Array, complex_dtype, float_dtype
 from .inputs import InputField, HalfmoonPhase, Polarization, gaussian_amplitude, phase_ramp
 from .focal_fields import FocalField
 from .pupil import Pupil, Stop
-from .zernike import ZernipaxNotInstalledError, zernike_phase
+from .zernike import ZernipaxNotInstalledError

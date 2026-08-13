@@ -22,7 +22,7 @@ DATA_DIR = Path(__file__).parent / "data"
 def main() -> None:
     DATA_DIR.mkdir(exist_ok=True)
     for case in all_cases():
-        result = case.pupil.propgate(case.z_um, case.inputs, padding_factor=PADDING_FACTOR)
+        result = case.pupil.propagate(case.z_um, case.inputs, padding_factor=PADDING_FACTOR)
         np.savez(
             DATA_DIR / f"{case.name}.npz",
             field_x=result.field_x,

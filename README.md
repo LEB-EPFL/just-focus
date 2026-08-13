@@ -30,7 +30,7 @@ pupil = Pupil(
     stop=Stop.TANH,
 )
 
-results = pupil.propgate(0.0, inputs, padding_factor=4)
+results = pupil.propagate(0.0, inputs, padding_factor=4)
 ```
 
 ## Installation
@@ -75,16 +75,6 @@ pip install just-focus[zernike]
 ```
 
 Zernike polynomial evalution is delegated to [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX).
-
-#### zernike-gpu
-
-If you have an NVIDIA GPU and want GPU-accelerated Zernike polynomial evaluation, install `zernike-gpu` instead, which pulls in a CUDA-enabled build of `jax`:
-
-```console
-pip install just-focus[zernike-gpu]
-```
-
-According to the [ZERNIPAX](https://github.com/PlasmaControl/ZERNIPAX/blob/a893905d5c71903bf6f71f88613afc17b02e0cbd/zernipax/zernike.py#L215) authors, the GPU-accelerated version is not always faster and can be less precise than the CPU-accelerated version. 
 
 ## Use
 
@@ -311,7 +301,27 @@ result = pupil.propagate(0.0, inputs)  # result.field_x etc. are now torch.Tenso
 
 Calling `set_backend` only affects `Pupil`/`InputField` instances built *afterward*. Mixing a NumPy-built `Pupil` with a PyTorch-built `InputField` in the same `propagate` call will fail at the first elementwise operation that combines an `ndarray` with a `Tensor`.
 
-Zernike phase aberrations (`InputField.with_zernike_modes`) are always computed via the optional `zernipax`/JAX dependency and converted to the active backend afterward; under the torch backend this conversion means the Zernike phase does not carry PyTorch autograd history.
+#### Autograd support
+
+Zernike phase aberrations (`InputField.with_zernike_modes`) split into a fixed basis matrix, computed via the optional `zernipax`/JAX dependency and cached, and a combination with `coefficients` that happens natively in the active backend. Under the torch backend, this means a `coefficients` tensor with `requires_grad=True` keeps its autograd graph through `with_zernike_modes`, so gradients of anything downstream (e.g. a loss computed from `Pupil.propagate`'s output) can be backpropagated into `coefficients`:
+
+```python
+import torch
+from leb.just_focus import set_backend, InputField, Polarization
+
+set_backend("torch")
+
+coefficients = torch.tensor([0.5, -0.2], dtype=torch.float64, requires_grad=True)
+inputs = InputField.uniform_pupil(64, Polarization.LINEAR_X).with_zernike_modes(
+    noll_indices=[4, 11],
+    coefficients=coefficients,
+)
+
+inputs.phase_x.sum().backward()
+print(coefficients.grad)  # gradient of the summed phase with respect to each coefficient
+```
+
+This autograd-preserving behavior is currently guaranteed for `coefficients` in the `with_zernike_modes` method. Verify gradient flow yourself before relying on it for anything besides `coefficients`.
 
 ### Coordinate Reference Systems and Meshes
 
@@ -385,7 +395,7 @@ If you want
 
 1. a Python package
 1. that computes vectorial focal fields
-1. with a simple API and
+1. with a [small API](./src/leb/just_focus/__init__.py) and
 1. a small number of dependencies,
 1. that supports both NumPy and PyTorch Tensor arrays, and
 1. you want the physics clearly reflected in the code,

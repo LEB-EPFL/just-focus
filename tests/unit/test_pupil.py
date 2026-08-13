@@ -20,18 +20,18 @@ def _make_pupil(mesh_size: int = 16) -> Pupil:
 
 
 def _on_axis_intensity(pupil: Pupil, z_um: float, inputs: InputField, padding_factor: int = 3) -> float:
-    field = pupil.propgate(z_um, inputs, padding_factor=padding_factor)
+    field = pupil.propagate(z_um, inputs, padding_factor=padding_factor)
     intensity = field.intensity(normalize=False)
     center = intensity.shape[0] // 2, intensity.shape[1] // 2
     return intensity[center]
 
 
-def test_propgate_intensity_changes_with_z():
+def test_propagate_intensity_changes_with_z():
     pupil = _make_pupil()
     inputs = InputField.uniform_pupil(pupil.mesh_size, Polarization.LINEAR_X)
 
-    intensity_in_focus = pupil.propgate(0.0, inputs, padding_factor=3).intensity(normalize=False)
-    intensity_defocused = pupil.propgate(0.3, inputs, padding_factor=3).intensity(normalize=False)
+    intensity_in_focus = pupil.propagate(0.0, inputs, padding_factor=3).intensity(normalize=False)
+    intensity_defocused = pupil.propagate(0.3, inputs, padding_factor=3).intensity(normalize=False)
 
     assert not np.allclose(intensity_in_focus, intensity_defocused, atol=0)
 
@@ -58,7 +58,7 @@ def _symmetric_field_cases() -> list[tuple[str, InputField]]:
 
 @pytest.mark.parametrize("case_name,inputs", _symmetric_field_cases())
 @pytest.mark.parametrize("z_um", [0.1, 0.2, 0.4])
-def test_propgate_on_axis_intensity_symmetric_about_focus(case_name, inputs, z_um):
+def test_propagate_on_axis_intensity_symmetric_about_focus(case_name, inputs, z_um):
     pupil = _make_pupil()
 
     intensity_pos_z = _on_axis_intensity(pupil, z_um, inputs)
@@ -74,7 +74,7 @@ def test_propgate_on_axis_intensity_symmetric_about_focus(case_name, inputs, z_u
         InputField.gaussian_pupil((0.0, 0.0), 0.7, 16, Polarization.LINEAR_X),
     ],
 )
-def test_propgate_on_axis_intensity_decreases_near_focus(inputs):
+def test_propagate_on_axis_intensity_decreases_near_focus(inputs):
     pupil = _make_pupil()
     z_values_um = [0.0, 0.05, 0.1, 0.15, 0.2]
 

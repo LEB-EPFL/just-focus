@@ -33,7 +33,7 @@ def main(plot=True) -> None:
     yz_intensity = []
     z0_index = int(np.argmin(np.abs(z_um)))
     for i, z in enumerate(z_um):
-        results = pupil.propgate(float(z), inputs, padding_factor=padding_factor)
+        results = pupil.propagate(float(z), inputs, padding_factor=padding_factor)
         intensity = results.intensity(normalize=False)
 
         if x_um is None:

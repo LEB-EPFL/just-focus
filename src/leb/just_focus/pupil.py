@@ -84,7 +84,7 @@ class Pupil:
         one = be.asarray(1.0, dtype=float_dtype())
         self.kz = be.sqrt(be.maximum(one, self.k**2 - self.kx**2 - self.ky**2))
 
-    def propgate(self, z_um: float, inputs: InputField, padding_factor: int = 2) -> FocalField:
+    def propagate(self, z_um: float, inputs: InputField, padding_factor: int = 2) -> FocalField:
         """Propagate the input field to the focal plane at distance z.
 
         Parameters
