@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.0](https://github.com/LEB-EPFL/just-focus/compare/v1.1.0...v2.0.0) (2026-08-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* Pass gradients through Zernike polynomial coefficients ([#80](https://github.com/LEB-EPFL/just-focus/issues/80))
+
+### Features
+
+* Add +/- 45 degrees linear polarization factories ([#82](https://github.com/LEB-EPFL/just-focus/issues/82)) ([6c02526](https://github.com/LEB-EPFL/just-focus/commit/6c0252662d60f765a36ac73bcaea599518a86011))
+* Add PyTorch backend ([#78](https://github.com/LEB-EPFL/just-focus/issues/78)) ([5f4e8a9](https://github.com/LEB-EPFL/just-focus/commit/5f4e8a923a4020977c4a0aad5932813ed578ce80))
+* Pass gradients through Zernike polynomial coefficients ([#80](https://github.com/LEB-EPFL/just-focus/issues/80)) ([38cf326](https://github.com/LEB-EPFL/just-focus/commit/38cf32648632ddc3572110ce6f18294bc7927529))
+
+
+### Documentation
+
+* Add CONTRIBUTING.md ([63e5725](https://github.com/LEB-EPFL/just-focus/commit/63e57258ecacfcbeac9efc2310752e03963072f9))
+
 ## [1.1.0](https://github.com/LEB-EPFL/just-focus/compare/v1.0.0...v1.1.0) (2026-08-11)
 
 
