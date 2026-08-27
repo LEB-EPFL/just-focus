@@ -1,6 +1,7 @@
 """Input fields for the propagation algorithm."""
 
 from __future__ import annotations
+
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
@@ -20,25 +21,27 @@ class Polarization(StrEnum):
     CIRCULAR_RIGHT = "circular_right"
 
     def arrays(self, mesh_size: int) -> tuple[Array, Array]:
+        ones = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
+        zeros = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
         match self:
             case Polarization.LINEAR_X:
-                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
-                polarization_y = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
+                polarization_x = ones
+                polarization_y = zeros
             case Polarization.LINEAR_Y:
-                polarization_x = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
-                polarization_y = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
+                polarization_x = zeros
+                polarization_y = ones
             case Polarization.LINEAR_PLUS_45:
-                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
-                polarization_y = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_x = ones / math.sqrt(2)
+                polarization_y = ones / math.sqrt(2)
             case Polarization.LINEAR_MINUS_45:
-                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
-                polarization_y = -be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_x = ones / math.sqrt(2)
+                polarization_y = -ones / math.sqrt(2)
             case Polarization.CIRCULAR_LEFT:
-                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
-                polarization_y = 1j * be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_x = ones / math.sqrt(2)
+                polarization_y = 1j * ones / math.sqrt(2)
             case Polarization.CIRCULAR_RIGHT:
-                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
-                polarization_y = -1j * be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_x = ones / math.sqrt(2)
+                polarization_y = -1j * ones / math.sqrt(2)
             case _:
                 raise ValueError(f"Unsupported polarization: {self}")
 
@@ -173,7 +176,8 @@ class InputField:
     -------
     gaussian_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization)
         Create a Gaussian pupil field with a specified waist size.
-    gaussian_halfmoon_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization, orientation, phase, phase_mask_center)
+    gaussian_halfmoon_pupil(beam_center_pupil, waist_pupil, mesh_size, polarization,
+        orientation, phase, phase_mask_center)
         Create a halfmoon pupil field with a Gaussian beam amplitude.
     uniform_pupil(mesh_size, polarization)
         Create a uniform pupil field with specified polarization.

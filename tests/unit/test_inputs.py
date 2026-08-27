@@ -3,7 +3,14 @@ import math
 import numpy as np
 import pytest
 
-from leb.just_focus import HalfmoonPhase, InputField, Polarization, float_dtype, gaussian_amplitude, phase_ramp
+from leb.just_focus import (
+    HalfmoonPhase,
+    InputField,
+    Polarization,
+    float_dtype,
+    gaussian_amplitude,
+    phase_ramp,
+)
 
 
 def test_gaussian_amplitude_shape_and_dtype():

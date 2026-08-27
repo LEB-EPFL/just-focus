@@ -1,12 +1,13 @@
 from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
 from enum import StrEnum
 
 from .backend import be
 from .dtypes import Array, complex_dtype, float_dtype
-from .inputs import InputField
 from .focal_fields import FocalField
+from .inputs import InputField
 
 
 class Stop(StrEnum):
@@ -115,19 +116,27 @@ class Pupil:
         phase_y_complex = be.exp(1j * be.astype(inputs.phase_y, complex_dtype()))
 
         far_field_x = defocus * self.stop_arr * (
-            inputs.polarization_x * inputs.amplitude_x * phase_x_complex * (self.ky**2 + self.kx**2 * self.kz / self.k) + \
-            inputs.polarization_y * inputs.amplitude_y * phase_y_complex * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k)
+            inputs.polarization_x * inputs.amplitude_x * phase_x_complex
+            * (self.ky**2 + self.kx**2 * self.kz / self.k)
+            + inputs.polarization_y * inputs.amplitude_y * phase_y_complex
+            * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k)
         ) / k_transverse_sq / kz_root
         far_field_y = defocus * self.stop_arr * (
-            inputs.polarization_x * inputs.amplitude_x * phase_x_complex * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k) + \
-            inputs.polarization_y * inputs.amplitude_y * phase_y_complex * (self.kx**2 + self.ky**2 * self.kz / self.k)
+            inputs.polarization_x * inputs.amplitude_x * phase_x_complex
+            * (-self.kx * self.ky + self.kx * self.ky * self.kz / self.k)
+            + inputs.polarization_y * inputs.amplitude_y * phase_y_complex
+            * (self.kx**2 + self.ky**2 * self.kz / self.k)
         ) / k_transverse_sq / kz_root
         far_field_z = defocus * self.stop_arr * (
-            inputs.polarization_x * inputs.amplitude_x * phase_x_complex * (-k_transverse_sq * self.kx / self.k) + \
-            inputs.polarization_y * inputs.amplitude_y * phase_y_complex * (-k_transverse_sq * self.ky / self.k)
+            inputs.polarization_x * inputs.amplitude_x * phase_x_complex
+            * (-k_transverse_sq * self.kx / self.k)
+            + inputs.polarization_y * inputs.amplitude_y * phase_y_complex
+            * (-k_transverse_sq * self.ky / self.k)
         ) / k_transverse_sq / kz_root
 
-        padding: tuple[tuple[int, int], tuple[int, int]] = self._pad_width(far_field_x.shape, padding_factor)
+        padding: tuple[tuple[int, int], tuple[int, int]] = self._pad_width(
+            far_field_x.shape, padding_factor
+        )
         far_field_x_padded = be.pad(far_field_x, padding, value=0.0)
         far_field_y_padded = be.pad(far_field_y, padding, value=0.0)
         far_field_z_padded = be.pad(far_field_z, padding, value=0.0)
@@ -138,27 +147,43 @@ class Pupil:
         # a plus sign).
         auxillary_mesh_size = self.mesh_size * 2**padding_factor
         auxillary_coords = be.linspace(
-            -auxillary_mesh_size // 2, auxillary_mesh_size // 2, auxillary_mesh_size, dtype=float_dtype()
+            -auxillary_mesh_size // 2,
+            auxillary_mesh_size // 2,
+            auxillary_mesh_size,
+            dtype=float_dtype(),
         )
         px, py = be.meshgrid(auxillary_coords, auxillary_coords, indexing='xy')
         correction_scaling = 1j * 2 * math.pi * 0.5 / px.shape[0]
         phase_correction = be.exp(
-            correction_scaling * be.astype(px, complex_dtype()) + correction_scaling * be.astype(py, complex_dtype())
+            correction_scaling * be.astype(px, complex_dtype())
+            + correction_scaling * be.astype(py, complex_dtype())
         )
 
-        field_x = be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_x_padded))) * phase_correction
-        field_y = be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_y_padded))) * phase_correction
-        field_z = be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_z_padded))) * phase_correction
+        field_x = (
+            be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_x_padded))) * phase_correction
+        )
+        field_y = (
+            be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_y_padded))) * phase_correction
+        )
+        field_z = (
+            be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_z_padded))) * phase_correction
+        )
 
         dx = self.wavelength_um / 2 / self.na / 2**padding_factor
         dy = dx
-        x_um = dx * be.linspace(-field_x.shape[0] // 2, field_x.shape[0] // 2 - 1, field_x.shape[0], dtype=float_dtype())
-        y_um = dy * be.linspace(-field_y.shape[1] // 2, field_y.shape[1] // 2 - 1, field_y.shape[1], dtype=float_dtype())
+        x_um = dx * be.linspace(
+            -field_x.shape[0] // 2, field_x.shape[0] // 2 - 1, field_x.shape[0], dtype=float_dtype()
+        )
+        y_um = dy * be.linspace(
+            -field_y.shape[1] // 2, field_y.shape[1] // 2 - 1, field_y.shape[1], dtype=float_dtype()
+        )
 
         return FocalField(field_x=field_x, field_y=field_y, field_z=field_z, x_um=x_um, y_um=y_um)
 
     @staticmethod
-    def _pad_width(array_shape: tuple[int, int], padding_factor: int) -> tuple[tuple[int, int], tuple[int, int]]:
+    def _pad_width(
+        array_shape: tuple[int, int], padding_factor: int
+    ) -> tuple[tuple[int, int], tuple[int, int]]:
         """Calculate the padding width for an array."""
         padded_shape = (2**padding_factor * array_shape[0], 2**padding_factor * array_shape[1])
         pad_height = (padded_shape[0] - array_shape[0]) // 2

@@ -50,11 +50,12 @@ let
   };
 
   pythonEnv = myPython.withPackages (ps: with ps; [
+    jax
+    just-focus
     matplotlib
     numpy
     pytest
-    just-focus
-    jax
+    ruff
     zernipax
   ]);
 in

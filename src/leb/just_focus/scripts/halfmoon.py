@@ -1,9 +1,13 @@
 """Generate a half-moon pupil with an off center Gaussian beam and visualize the results."""
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
+from matplotlib.patches import Circle
 
 from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil, Stop
+
+
+def _add_stop_outline(ax, radius_mm: float) -> None:
+    ax.add_artist(Circle((0, 0), radius=radius_mm, color="k", fill=False, linewidth=2))
 
 
 def main(plot=True) -> None:
@@ -37,7 +41,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 0], pupil.stop_radius_mm)
     axs[0, 0].set_ylabel("y, mm")
     axs[0, 0].set_title("Amplitude, x")
 
@@ -48,7 +52,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 1], pupil.stop_radius_mm)
     axs[0, 1].set_title("Amplitude, y")
 
     axs[0, 2].imshow(
@@ -58,7 +62,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 2].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 2], pupil.stop_radius_mm)
     axs[0, 2].set_title("Phase, x")
 
     axs[0, 3].imshow(
@@ -68,7 +72,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 3].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 3], pupil.stop_radius_mm)
     axs[0, 3].set_title("Phase, y")
 
     axs[1, 0].imshow(
@@ -78,7 +82,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[1, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 0], pupil.stop_radius_mm)
     axs[1, 0].set_title("Polarization, x")
     axs[1, 0].set_xlabel("x, mm")
     axs[1, 0].set_ylabel("y, mm")
@@ -90,7 +94,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[1, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 1], pupil.stop_radius_mm)
     axs[1, 1].set_title("Polarization, y")
     axs[1, 1].set_xlabel("x, mm")
 
