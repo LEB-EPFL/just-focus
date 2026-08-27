@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pytest
 
@@ -76,3 +78,21 @@ def test_with_phase_ramp_dtype_preserved():
 
     assert field.phase_x.dtype == float_dtype()
     assert field.phase_y.dtype == float_dtype()
+
+
+def test_polarization_plus_45_arrays():
+    mesh_size = 4
+    polarization_x, polarization_y = Polarization.LINEAR_PLUS_45.arrays(mesh_size)
+
+    expected = 1 / math.sqrt(2)
+    assert np.allclose(polarization_x, expected)
+    assert np.allclose(polarization_y, expected)
+
+
+def test_polarization_minus_45_arrays():
+    mesh_size = 4
+    polarization_x, polarization_y = Polarization.LINEAR_MINUS_45.arrays(mesh_size)
+
+    expected = 1 / math.sqrt(2)
+    assert np.allclose(polarization_x, expected)
+    assert np.allclose(polarization_y, -expected)

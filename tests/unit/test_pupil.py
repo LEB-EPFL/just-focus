@@ -40,6 +40,7 @@ def _symmetric_field_cases() -> list[tuple[str, InputField]]:
     mesh_size = 16
     return [
         ("uniform_linear_x", InputField.uniform_pupil(mesh_size, Polarization.LINEAR_X)),
+        ("uniform_linear_plus_45", InputField.uniform_pupil(mesh_size, Polarization.LINEAR_PLUS_45)),
         ("uniform_circular_left", InputField.uniform_pupil(mesh_size, Polarization.CIRCULAR_LEFT)),
         (
             "gaussian_centered",
