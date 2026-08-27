@@ -13,7 +13,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-
 from cases import PADDING_FACTOR, all_cases
 
 DATA_DIR = Path(__file__).parent / "data"

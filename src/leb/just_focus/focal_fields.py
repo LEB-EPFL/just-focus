@@ -1,5 +1,6 @@
 """Electromagnetic fields in the focus of a high NA microscope objective."""
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 from .backend import be
@@ -15,7 +16,7 @@ class FocalField:
     y_um: Array
 
     def intensity(self, normalize: bool = True) -> Array:
-        I = be.abs(self.field_x)**2 + be.abs(self.field_y)**2 + be.abs(self.field_z)**2
+        intensity = be.abs(self.field_x)**2 + be.abs(self.field_y)**2 + be.abs(self.field_z)**2
         if normalize:
-            return I / be.max(I)
-        return I
+            return intensity / be.max(intensity)
+        return intensity

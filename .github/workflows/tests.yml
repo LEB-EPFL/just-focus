@@ -26,5 +26,8 @@ jobs:
       - name: Set up the dev environment
         run: uv sync --locked --all-extras --dev
 
+      - name: Lint with ruff
+        run: uv run ruff check .
+
       - name: Run the tests
         run: uv run pytest

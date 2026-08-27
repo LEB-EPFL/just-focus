@@ -4,11 +4,16 @@ Requires the "plot" extra to be installed.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
+from matplotlib.patches import Circle
 
 from leb.just_focus import InputField, Pupil
 from leb.just_focus.backend import be
+
+
+def _add_stop_outline(ax, radius_mm: float) -> None:
+    ax.add_artist(Circle((0, 0), radius=radius_mm, color="k", fill=False, linewidth=2))
+
 
 def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
     amplitude_x = be.to_numpy(inputs.amplitude_x)
@@ -29,7 +34,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[0, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 0], pupil.stop_radius_mm)
     axs[0, 0].set_ylabel("y, mm")
     axs[0, 0].set_title("Amplitude, x")
 
@@ -40,7 +45,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[0, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 1], pupil.stop_radius_mm)
     axs[0, 1].set_title("Amplitude, y")
 
     axs[0, 2].imshow(
@@ -50,7 +55,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[0, 2].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 2], pupil.stop_radius_mm)
     axs[0, 2].set_title("Phase, x")
 
     axs[0, 3].imshow(
@@ -60,7 +65,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[0, 3].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 3], pupil.stop_radius_mm)
     axs[0, 3].set_title("Phase, y")
 
     axs[1, 0].imshow(
@@ -70,7 +75,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[1, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 0], pupil.stop_radius_mm)
     axs[1, 0].set_title("Polarization, x")
     axs[1, 0].set_xlabel("x, mm")
     axs[1, 0].set_ylabel("y, mm")
@@ -82,7 +87,7 @@ def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
         origin="lower",
         extent=(x_mm[0], x_mm[-1], y_mm[0], y_mm[-1]),
     )
-    axs[1, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 1], pupil.stop_radius_mm)
     axs[1, 1].set_title("Polarization, y")
     axs[1, 1].set_xlabel("x, mm")
 

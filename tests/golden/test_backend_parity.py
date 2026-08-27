@@ -16,8 +16,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from cases import PADDING_FACTOR, build_case, case_names
 
-from cases import case_names, build_case, PADDING_FACTOR
 from leb.just_focus import set_backend
 from leb.just_focus.backend import be
 

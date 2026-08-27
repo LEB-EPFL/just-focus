@@ -368,6 +368,14 @@ Just run `pytest` from the project's root directory:
 pytest
 ```
 
+### Linting
+
+This project uses [ruff](https://docs.astral.sh/ruff/) for linting. Run it from the project's root directory:
+
+```console
+ruff check .
+```
+
 ### shell.nix
 
 A [shell.nix](shell.nix) file is provided for creating reproducible development environments on remote, GPU-enabled machines running [NixOS](https://nixos.org/). To enter the development shell environment, run the following console command:
