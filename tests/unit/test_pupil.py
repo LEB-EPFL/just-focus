@@ -19,7 +19,9 @@ def _make_pupil(mesh_size: int = 16) -> Pupil:
     return Pupil(na=1.4, refractive_index=1.518, wavelength_um=0.561, mesh_size=mesh_size)
 
 
-def _on_axis_intensity(pupil: Pupil, z_um: float, inputs: InputField, padding_factor: int = 3) -> float:
+def _on_axis_intensity(
+    pupil: Pupil, z_um: float, inputs: InputField, padding_factor: int = 3
+) -> float:
     field = pupil.propagate(z_um, inputs, padding_factor=padding_factor)
     intensity = field.intensity(normalize=False)
     center = intensity.shape[0] // 2, intensity.shape[1] // 2
@@ -40,8 +42,14 @@ def _symmetric_field_cases() -> list[tuple[str, InputField]]:
     mesh_size = 16
     return [
         ("uniform_linear_x", InputField.uniform_pupil(mesh_size, Polarization.LINEAR_X)),
-        ("uniform_linear_plus_45", InputField.uniform_pupil(mesh_size, Polarization.LINEAR_PLUS_45)),
-        ("uniform_circular_left", InputField.uniform_pupil(mesh_size, Polarization.CIRCULAR_LEFT)),
+        (
+            "uniform_linear_plus_45",
+            InputField.uniform_pupil(mesh_size, Polarization.LINEAR_PLUS_45),
+        ),
+        (
+            "uniform_circular_left",
+            InputField.uniform_pupil(mesh_size, Polarization.CIRCULAR_LEFT),
+        ),
         (
             "gaussian_centered",
             InputField.gaussian_pupil((0.0, 0.0), 0.7, mesh_size, Polarization.LINEAR_X),

@@ -1,10 +1,16 @@
-"""Generate the focal fields from a Gaussian beam steered by a phase ramp and visualize the results."""
+"""Generate the focal fields from a Gaussian beam steered by a phase ramp and visualize the
+results.
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle
 
 from leb.just_focus import InputField, Polarization, Pupil, Stop
+
+
+def _add_stop_outline(ax, radius_mm: float) -> None:
+    ax.add_artist(Circle((0, 0), radius=radius_mm, color="k", fill=False, linewidth=2))
 
 
 def main(plot=True) -> None:
@@ -40,7 +46,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 0], pupil.stop_radius_mm)
     axs[0, 0].set_ylabel("y, mm")
     axs[0, 0].set_title("Amplitude")
 
@@ -49,7 +55,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[0, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[0, 1], pupil.stop_radius_mm)
     axs[0, 1].set_title("Phase")
 
     axs[1, 0].imshow(
@@ -59,7 +65,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[1, 0].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 0], pupil.stop_radius_mm)
     axs[1, 0].set_ylabel("y, mm")
     axs[1, 0].set_title("Polarization, x")
 
@@ -70,7 +76,7 @@ def main(plot=True) -> None:
         origin="lower",
         extent=(pupil.x_mm[0], pupil.x_mm[-1], pupil.y_mm[0], pupil.y_mm[-1]),
     )
-    axs[1, 1].add_artist(Circle((0, 0), radius=pupil.stop_radius_mm, color='k', fill=False, linewidth=2))
+    _add_stop_outline(axs[1, 1], pupil.stop_radius_mm)
     axs[1, 1].set_title("Polarization, y")
 
     axs[2, 0].imshow(pupil.stop_arr, vmin=0, vmax=1)
