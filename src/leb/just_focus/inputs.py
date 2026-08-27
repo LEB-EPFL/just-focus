@@ -14,6 +14,8 @@ from .zernike import _zernike_basis
 class Polarization(StrEnum):
     LINEAR_X = "linear_x"
     LINEAR_Y = "linear_y"
+    LINEAR_PLUS_45 = "linear_plus_45"
+    LINEAR_MINUS_45 = "linear_minus_45"
     CIRCULAR_LEFT = "circular_left"
     CIRCULAR_RIGHT = "circular_right"
 
@@ -25,6 +27,12 @@ class Polarization(StrEnum):
             case Polarization.LINEAR_Y:
                 polarization_x = be.zeros((mesh_size, mesh_size), dtype=complex_dtype())
                 polarization_y = be.ones((mesh_size, mesh_size), dtype=complex_dtype())
+            case Polarization.LINEAR_PLUS_45:
+                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_y = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+            case Polarization.LINEAR_MINUS_45:
+                polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
+                polarization_y = -be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
             case Polarization.CIRCULAR_LEFT:
                 polarization_x = be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)
                 polarization_y = 1j * be.ones((mesh_size, mesh_size), dtype=complex_dtype()) / math.sqrt(2)

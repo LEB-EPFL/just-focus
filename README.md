@@ -159,6 +159,8 @@ Possible values for the `Polarization` enum are:
 ```python
 Polarization.LINEAR_X
 Polarization.LINEAR_Y
+Polarization.LINEAR_PLUS_45
+Polarization.LINEAR_MINUS_45
 Polarization.CIRCULAR_LEFT
 Polarization.CIRCULAR_RIGHT
 ```
