@@ -4,11 +4,12 @@ Requires the "plot" extra to be installed.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
+from matplotlib.patches import Circle
 
 from leb.just_focus import InputField, Pupil
 from leb.just_focus.backend import be
+
 
 def plot_inputs(inputs: InputField, pupil: Pupil, show: bool = True) -> None:
     amplitude_x = be.to_numpy(inputs.amplitude_x)

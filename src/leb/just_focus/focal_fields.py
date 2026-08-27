@@ -1,5 +1,6 @@
 """Electromagnetic fields in the focus of a high NA microscope objective."""
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 from .backend import be

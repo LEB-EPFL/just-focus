@@ -1,12 +1,13 @@
 from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
 from enum import StrEnum
 
 from .backend import be
 from .dtypes import Array, complex_dtype, float_dtype
-from .inputs import InputField
 from .focal_fields import FocalField
+from .inputs import InputField
 
 
 class Stop(StrEnum):

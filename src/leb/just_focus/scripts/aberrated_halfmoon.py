@@ -1,7 +1,7 @@
 """Generate a half-moon pupil with Zernike polynomial phase aberrations and visualize the results."""
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
+from matplotlib.patches import Circle
 
 from leb.just_focus import HalfmoonPhase, InputField, Polarization, Pupil, Stop
 from leb.just_focus.zernike import zernike_pupil_coordinates

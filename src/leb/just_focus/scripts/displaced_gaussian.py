@@ -1,8 +1,8 @@
 """Generate the focal fields from a Gaussian beam steered by a phase ramp and visualize the results."""
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 import numpy as np
+from matplotlib.patches import Circle
 
 from leb.just_focus import InputField, Polarization, Pupil, Stop
 
