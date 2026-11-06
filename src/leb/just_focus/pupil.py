@@ -170,9 +170,7 @@ class Pupil:
         )
 
         # The FFT returns the field at spacing 2 * pi / (n_padded * dk). The pupil is sampled
-        # by linspace(-1, 1, mesh_size), so its spacing is dk = k0 * na * 2 / (mesh_size - 1),
-        # not 2 / mesh_size; using the latter would stretch the focal plane by
-        # mesh_size / (mesh_size - 1).
+        # by linspace(-1, 1, mesh_size), so its spacing is dk = k0 * na * 2 / (mesh_size - 1).
         dx = (
             self.wavelength_um / 2 / self.na / 2**padding_factor
             * (self.mesh_size - 1) / self.mesh_size
