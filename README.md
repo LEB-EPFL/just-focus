@@ -338,7 +338,7 @@ The pupil mesh has two different coordinate reference systems: one for the real 
 
 The pupil mesh samples are always taken at the centers of their corresponding cells. The origin is at the corners where the four center cells meet; as a result, the origin of the pupil is not sampled, which is useful for avoiding divisions by zero during field calculations. On the other hand, by not sampling the origin the code must apply a phase correction term to the samples in k-space to ensure correct application of the FFT. (See the manuscript by Herrera and Quinto-Su cited below for more information.)
 
-Unlike the pupil mesh, the origin of the coordinate system is sampled by the focal field mesh because of how the FFT works. It lies at pixel `L / 2`, where `L` is the linear square mesh size. The focal field mesh spacing is `dx = λ/(2·NA·2^padding_factor)` and total the FOV is `L * dx = mesh_size * λ/(2·NA)`, i.e. the FOV is independent of any padding applied before the FFT.
+Unlike the pupil mesh, the origin of the coordinate system is sampled by the focal field mesh because of how the FFT works. It lies at pixel `L / 2`, where `L` is the linear square mesh size. The focal field mesh spacing is `dx = λ/(2·NA·2^padding_factor) · (mesh_size − 1)/mesh_size` and the total FOV is `L * dx = (mesh_size − 1) · λ/(2·NA)`, i.e. the FOV is independent of any padding applied before the FFT. The factor `(mesh_size − 1)/mesh_size` arises because the pupil is sampled by `linspace(-1, 1, mesh_size)`, whose spacing is `2/(mesh_size − 1)`.
 
 ### Example Scripts
 
