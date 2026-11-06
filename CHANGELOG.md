@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/LEB-EPFL/just-focus/compare/v2.0.0...v3.0.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Focal plane scale error
+
+### Bug Fixes
+
+* Focal plane scale error ([377c842](https://github.com/LEB-EPFL/just-focus/commit/377c842864c27fa2a44e0bdb9c2e2dd96e55f595))
+
 ## [2.0.0](https://github.com/LEB-EPFL/just-focus/compare/v1.1.0...v2.0.0) (2026-08-27)
 
 
