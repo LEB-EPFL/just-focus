@@ -169,7 +169,12 @@ class Pupil:
             be.fft.ifftshift(be.fft.ifft2(be.fft.ifftshift(far_field_z_padded))) * phase_correction
         )
 
-        dx = self.wavelength_um / 2 / self.na / 2**padding_factor
+        # The FFT returns the field at spacing 2 * pi / (n_padded * dk). The pupil is sampled
+        # by linspace(-1, 1, mesh_size), so its spacing is dk = k0 * na * 2 / (mesh_size - 1).
+        dx = (
+            self.wavelength_um / 2 / self.na / 2**padding_factor
+            * (self.mesh_size - 1) / self.mesh_size
+        )
         dy = dx
         x_um = dx * be.linspace(
             -field_x.shape[0] // 2, field_x.shape[0] // 2 - 1, field_x.shape[0], dtype=float_dtype()

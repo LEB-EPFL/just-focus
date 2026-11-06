@@ -90,3 +90,35 @@ def test_propagate_on_axis_intensity_decreases_near_focus(inputs):
     intensities = [_on_axis_intensity(pupil, z_um, inputs) for z_um in z_values_um]
 
     assert all(intensities[i] > intensities[i + 1] for i in range(len(intensities) - 1))
+
+
+def _peak_x_um(field) -> float:
+    """Sub-sample x position of the intensity maximum along the row through y = 0."""
+    intensity = np.asarray(field.intensity(normalize=False))
+    x_um = np.asarray(field.x_um)
+    row = intensity[np.argmin(np.abs(np.asarray(field.y_um)))]
+    i = int(np.argmax(row))
+    left, center, right = row[i - 1 : i + 2]
+    return float(x_um[i] + (x_um[1] - x_um[0]) * 0.5 * (left - right) / (left - 2 * center + right))
+
+
+@pytest.mark.parametrize("mesh_size", [32, 64, 128])
+@pytest.mark.parametrize("shift_um", [0.1, 0.3])
+def test_phase_ramp_shifts_focus_by_the_fourier_shift_theorem(mesh_size: int, shift_um: float):
+    """A pupil phase ramp tilt_x * px must move the focus by -tilt_x / (k0 * na).
+
+    The ramp multiplies each sampled plane wave exp(i kx x) by exp(-i kx shift), which
+    translates the sampled sum exactly, so the only possible error is in the focal-plane
+    coordinates `x_um`. A coordinate scale that ignores the pupil's linspace spacing
+    2 / (mesh_size - 1) misplaces the focus by a factor mesh_size / (mesh_size - 1).
+    """
+    pupil = _make_pupil(mesh_size)
+    tilt_x = -2 * np.pi * pupil.na / pupil.wavelength_um * shift_um
+    unshifted = InputField.gaussian_pupil((0.0, 0.0), 1.0, mesh_size, Polarization.LINEAR_Y)
+    shifted = unshifted.with_phase_ramp((tilt_x, 0.0))
+
+    peak_unshifted = _peak_x_um(pupil.propagate(0.0, unshifted, padding_factor=4))
+    peak_shifted = _peak_x_um(pupil.propagate(0.0, shifted, padding_factor=4))
+
+    # Parabolic peak interpolation is accurate to well below 0.2% of the shift here
+    assert peak_shifted - peak_unshifted == pytest.approx(shift_um, rel=2e-3)

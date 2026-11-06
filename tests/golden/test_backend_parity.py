@@ -2,7 +2,9 @@
 
 The golden `.npz` files under `data/` were generated once from the
 pre-refactor, NumPy-only version of this package (see
-`generate_golden_data.py`) and are the external oracle both backends are
+`generate_golden_data.py`), and regenerated when the focal-plane coordinates
+`x_um`/`y_um` were corrected by a factor (mesh_size - 1) / mesh_size (the
+fields were unchanged). They are the external oracle both backends are
 checked against here: the NumPy path must reproduce them essentially
 exactly (any drift signals a refactor bug, not a numerical-method
 difference), while the PyTorch path is allowed a looser, still-tight
