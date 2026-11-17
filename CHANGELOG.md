@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/LEB-EPFL/just-focus/compare/v3.0.0...v3.0.1) (2026-11-17)
+
+
+### Documentation
+
+* Add an illustrative image to the README ([#104](https://github.com/LEB-EPFL/just-focus/issues/104)) ([1d14454](https://github.com/LEB-EPFL/just-focus/commit/1d14454057ac665d62cb3935e23b29f0547ced4e))
+
 ## [3.0.0](https://github.com/LEB-EPFL/just-focus/compare/v2.0.0...v3.0.0) (2026-11-06)
 
 
