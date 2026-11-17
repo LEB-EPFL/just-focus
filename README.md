@@ -6,6 +6,8 @@
 
 Just Focus is a Python package for computing vectorial electromagnetic fields in the focus of high numerical aperture microscope objectives.
 
+![The inputs and output of a Just Focus field simulation of an aberrated halfmoon pupil.](/assets/aberrated-halfmoon.png)
+
 ## Quickstart
 
 Compute the field in the focal plane (z = 0.0) of a NA 1.4 oil immersion microscope objective assuming a linearly polarized, paraxial Gaussian beam with a waist size equal to the radius of the objective's back aperture. Use a hyperbolic tangent function to smooth the boundary of the stop and zero pad the mesh so that the final square mesh has 64 * 2^4 = 1024 samples in each direction.
@@ -396,7 +398,7 @@ In general, you will not need this unless you are working on GPU-accelerated cod
 
 ### Is Just Focus for me?
 
-- If you want a fast PSF calculator that runs on the GPU, then use [psf-generator](https://github.com/Biomedical-Imaging-Group/psf_generator).
+- If you want a PSF calculator that offers a choice of several models, then use [psf-generator](https://github.com/Biomedical-Imaging-Group/psf_generator).
 - If you want a GUI and/or a Windows-installable executable, then use [PyFocus](https://github.com/fcaprile/PyFocus).
 - If you want a MATLAB tool, then use [InFocus](https://github.com/QF06/InFocus).
 - If you want a Java/ImageJ/Fiji/Icy tool, use [PSF Generator](https://bigwww.epfl.ch/algorithms/psfgenerator/).
@@ -407,7 +409,7 @@ If you want
 1. that computes vectorial focal fields
 1. with a [small API](./src/leb/just_focus/__init__.py) and
 1. a small number of dependencies,
-1. that supports both NumPy and PyTorch Tensor arrays, and
+1. that supports both NumPy arrays and PyTorch tensors, and
 1. you want the physics clearly reflected in the code,
 
 then Just Focus might be for you.
